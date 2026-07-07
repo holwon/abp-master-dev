@@ -320,13 +320,13 @@ public class MyModulePermissionDefinitionProvider : PermissionDefinitionProvider
 
 ## Best Practices Checklist
 
-- [ ] All public/protected methods are `virtual`
-- [ ] Helper methods use `protected virtual` (not `private`)
-- [ ] Repository interfaces in Domain, implementations in both EF Core and MongoDB
-- [ ] `DbTablePrefix` and `DbSchema` as configurable static properties
-- [ ] `[ConnectionStringName]` for separate database support
-- [ ] `MyModuleOptions` for configuration
-- [ ] `ObjectExtensionManager` for entity extension
-- [ ] Localization resource defined in Domain.Shared
-- [ ] Permission definitions in Application.Contracts
-- [ ] Test host application included for development
+- All public/protected methods are `virtual`
+- Helper methods use `protected virtual` (not `private`)
+- Repository interfaces in Domain, implementations in both EF Core and MongoDB
+- `DbTablePrefix` and `DbSchema` as configurable static properties
+- `[ConnectionStringName]` for separate database support
+- `MyModuleOptions` for configuration
+- `ObjectExtensionManager` for entity extension
+- Localization resource defined in Domain.Shared
+- Permission definitions in Application.Contracts
+- Test host application included for development

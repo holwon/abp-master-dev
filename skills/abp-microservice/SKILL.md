@@ -289,16 +289,16 @@ Each UI application has its own gateway (BFF pattern):
 
 ## Best Practices Checklist
 
-- [ ] Each microservice has its own database
-- [ ] Integration Services used for synchronous inter-service calls
-- [ ] Distributed Events (RabbitMQ) for asynchronous communication
-- [ ] Outbox/Inbox pattern for reliable event delivery
-- [ ] Entity Cache for frequently accessed cross-service data
-- [ ] YARP gateway per UI application (BFF pattern)
-- [ ] OpenIddict for centralized authentication
-- [ ] Redis for distributed caching
-- [ ] Docker Compose for local development
-- [ ] Helm charts for Kubernetes deployment
+- Each microservice has its own database
+- Integration Services used for synchronous inter-service calls
+- Distributed Events (RabbitMQ) for asynchronous communication
+- Outbox/Inbox pattern for reliable event delivery
+- Entity Cache for frequently accessed cross-service data
+- YARP gateway per UI application (BFF pattern)
+- OpenIddict for centralized authentication
+- Redis for distributed caching
+- Docker Compose for local development
+- Helm charts for Kubernetes deployment
     return await _productCache.GetAsync(id);
 }
 ```

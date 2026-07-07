@@ -269,18 +269,18 @@ In MongoDB, `ExtraProperties` are stored as **regular document fields** (not JSO
 
 ## Best Practices Checklist
 
-- [ ] MongoDbContext inherits from `AbpMongoDbContext`
-- [ ] `base.CreateModel(modelBuilder)` called first
-- [ ] Entity configuration in extension methods, not in `CreateModel`
-- [ ] `CollectionPrefix` as static property for module extensibility
-- [ ] Repository inherits from `MongoDbRepository<TDbContext, TEntity, TKey>`
-- [ ] Repository uses MongoDbContext interface as generic parameter
-- [ ] `GetMongoQueryableAsync()` used for data access (applies ABP filters)
-- [ ] `GetCancellationToken(cancellationToken)` used in all async calls
-- [ ] `UpdateAsync` called explicitly after every mutation
-- [ ] Indexes configured for frequently queried fields
-- [ ] Embedded vs reference decision made consciously per relationship
-- [ ] `AddDefaultRepositories()` without `includeAllEntities: true`
+- MongoDbContext inherits from `AbpMongoDbContext`
+- `base.CreateModel(modelBuilder)` called first
+- Entity configuration in extension methods, not in `CreateModel`
+- `CollectionPrefix` as static property for module extensibility
+- Repository inherits from `MongoDbRepository<TDbContext, TEntity, TKey>`
+- Repository uses MongoDbContext interface as generic parameter
+- `GetMongoQueryableAsync()` used for data access (applies ABP filters)
+- `GetCancellationToken(cancellationToken)` used in all async calls
+- `UpdateAsync` called explicitly after every mutation
+- Indexes configured for frequently queried fields
+- Embedded vs reference decision made consciously per relationship
+- `AddDefaultRepositories()` without `includeAllEntities: true`
 
     await collection.UpdateManyAsync(filter, update);
 }

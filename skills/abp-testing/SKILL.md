@@ -349,14 +349,14 @@ public async Task Should_Access_Host_Data()
 
 ## Best Practices Checklist
 
-- [ ] Tests inherit from appropriate test base class
-- [ ] `GetRequiredService<T>()` used for service resolution
-- [ ] Shouldly assertions used consistently
-- [ ] AAA pattern followed (Arrange-Act-Assert)
-- [ ] Test naming follows `Should_ExpectedBehavior_When_Condition`
-- [ ] Test data seeded via `IDataSeedContributor`
-- [ ] `AddAlwaysAllowAuthorization()` used when not testing auth
-- [ ] NSubstitute used for external service mocking
-- [ ] `WithUnitOfWorkAsync()` used for manual UoW control
-- [ ] Both host and tenant contexts tested (if multi-tenant)
-- [ ] Error cases and edge cases covered
+- Tests inherit from appropriate test base class
+- `GetRequiredService<T>()` used for service resolution
+- Shouldly assertions used consistently
+- AAA pattern followed (Arrange-Act-Assert)
+- Test naming follows `Should_ExpectedBehavior_When_Condition`
+- Test data seeded via `IDataSeedContributor`
+- `AddAlwaysAllowAuthorization()` used when not testing auth
+- NSubstitute used for external service mocking
+- `WithUnitOfWorkAsync()` used for manual UoW control
+- Both host and tenant contexts tested (if multi-tenant)
+- Error cases and edge cases covered

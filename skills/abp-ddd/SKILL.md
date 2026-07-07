@@ -516,20 +516,20 @@ ABP automatically increments `EntityVersion` on each update. Initial value is `0
 
 ## Best Practices Checklist
 
-- [ ] Entities inherit from appropriate base class (`Entity<TKey>`, `AggregateRoot<TKey>`, etc.)
-- [ ] GUID keys generated via `IGuidGenerator`, not `Guid.NewGuid()`
-- [ ] Properties have `protected`/`private` setters
-- [ ] State mutations happen through domain methods with meaningful names
-- [ ] Collections initialized in constructor
-- [ ] Sub-entities have `internal` constructors
-- [ ] Aggregate roots reference other aggregates by ID only
-- [ ] One repository per aggregate root
-- [ ] Repository interfaces in Domain layer, implementations in EF Core/MongoDB layer
-- [ ] Domain services named with `Manager` suffix
-- [ ] Domain services throw `BusinessException` with namespaced error codes
-- [ ] Domain events used for side effects within the same aggregate
-- [ ] Value objects override `GetAtomicValues()` for equality
-- [ ] Protected parameterless constructor present for ORM deserialization
+- Entities inherit from appropriate base class (`Entity<TKey>`, `AggregateRoot<TKey>`, etc.)
+- GUID keys generated via `IGuidGenerator`, not `Guid.NewGuid()`
+- Properties have `protected`/`private` setters
+- State mutations happen through domain methods with meaningful names
+- Collections initialized in constructor
+- Sub-entities have `internal` constructors
+- Aggregate roots reference other aggregates by ID only
+- One repository per aggregate root
+- Repository interfaces in Domain layer, implementations in EF Core/MongoDB layer
+- Domain services named with `Manager` suffix
+- Domain services throw `BusinessException` with namespaced error codes
+- Domain events used for side effects within the same aggregate
+- Value objects override `GetAtomicValues()` for equality
+- Protected parameterless constructor present for ORM deserialization
 - Accept/return domain objects, not DTOs
 - Don't depend on authenticated user - pass values from application layer
 - Use base class properties (`GuidGenerator`, `Clock`) instead of injecting these services

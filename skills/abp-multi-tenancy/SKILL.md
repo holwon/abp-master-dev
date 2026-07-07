@@ -184,14 +184,14 @@ Configure<AbpTenantResolveOptions>(options =>
 
 ## Best Practices Checklist
 
-- [ ] Tenant-specific entities implement `IMultiTenant`
-- [ ] `TenantId` is nullable (`Guid?`)
-- [ ] No manual `TenantId` filtering in queries
-- [ ] `CurrentTenant.Change()` always used with `using`
-- [ ] Both host and tenant contexts tested
-- [ ] Database architecture chosen consciously (single vs per-tenant vs hybrid)
-- [ ] Tenant resolution order understood
-- [ ] `MultiTenancyConsts.IsEnabled` used for centralized control
+- Tenant-specific entities implement `IMultiTenant`
+- `TenantId` is nullable (`Guid?`)
+- No manual `TenantId` filtering in queries
+- `CurrentTenant.Change()` always used with `using`
+- Both host and tenant contexts tested
+- Database architecture chosen consciously (single vs per-tenant vs hybrid)
+- Tenant resolution order understood
+- `MultiTenancyConsts.IsEnabled` used for centralized control
 4. HTTP header (`__tenant`)
 5. Cookie (`__tenant`)
 6. Domain/subdomain (if configured)

@@ -319,16 +319,16 @@ Configure<AbpLocalizationOptions>(options =>
 
 ## Best Practices Checklist
 
-- [ ] Use `IClock` instead of `DateTime`
-- [ ] Use marker interfaces for DI registration
-- [ ] Use `IRepository<T>` instead of `DbContext` in Application layer
-- [ ] Check base class properties before injecting services
-- [ ] All async methods end with `Async` suffix
-- [ ] Use `BusinessException` with namespaced error codes
-- [ ] All user-facing strings are localized
-- [ ] Module class uses `[DependsOn]` to declare dependencies
-- [ ] Middleware configured only in host application
-- [ ] Never use `.Result` or `.Wait()` on async operations
+- Use `IClock` instead of `DateTime`
+- Use marker interfaces for DI registration
+- Use `IRepository<T>` instead of `DbContext` in Application layer
+- Check base class properties before injecting services
+- All async methods end with `Async` suffix
+- Use `BusinessException` with namespaced error codes
+- All user-facing strings are localized
+- Module class uses `[DependsOn]` to declare dependencies
+- Middleware configured only in host application
+- Never use `.Result` or `.Wait()` on async operations
 |-----------|-------------|
 | Minimal APIs | ABP Controllers or Auto API Controllers |
 | MediatR | Application Services |

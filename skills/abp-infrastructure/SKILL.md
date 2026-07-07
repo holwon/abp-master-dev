@@ -394,16 +394,16 @@ Entity cache is automatically invalidated when the entity is updated or deleted.
 
 ## Best Practices Checklist
 
-- [ ] Settings defined via `SettingDefinitionProvider`
-- [ ] Features defined via `FeatureDefinitionProvider`
-- [ ] `IDistributedCache<T>` used for shared cache (not `IMemoryCache`)
-- [ ] `IDistributedLockProvider` used for distributed locks (not `lock`)
-- [ ] Local events for intra-module, distributed events for cross-service
-- [ ] ETOs defined in `Domain.Shared` for distributed events
-- [ ] Outbox/Inbox pattern for reliable distributed events
-- [ ] Background jobs for async/queued work
-- [ ] `IClock` used for all time-based operations
-- [ ] Data filters used with `using` blocks for scoped disabling
+- Settings defined via `SettingDefinitionProvider`
+- Features defined via `FeatureDefinitionProvider`
+- `IDistributedCache<T>` used for shared cache (not `IMemoryCache`)
+- `IDistributedLockProvider` used for distributed locks (not `lock`)
+- Local events for intra-module, distributed events for cross-service
+- ETOs defined in `Domain.Shared` for distributed events
+- Outbox/Inbox pattern for reliable distributed events
+- Background jobs for async/queued work
+- `IClock` used for all time-based operations
+- Data filters used with `using` blocks for scoped disabling
 {
     public string EmailAddress { get; set; }
     public string Subject { get; set; }

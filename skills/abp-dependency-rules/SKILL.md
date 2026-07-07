@@ -218,18 +218,18 @@ MyProject.Domain.Shared          — Shared constants/enums (all reference this)
 
 ## Enforcement Checklist
 
-- [ ] `Domain.Shared` has zero project references
-- [ ] `Domain` only references `Domain.Shared`
-- [ ] `Application.Contracts` only references `Domain.Shared`
-- [ ] `Application` only references `Domain` and `Application.Contracts`
-- [ ] `EntityFrameworkCore` only references `Domain`
-- [ ] `MongoDB` only references `Domain`
-- [ ] `HttpApi` only references `Application.Contracts`
-- [ ] `HttpApi.Client` only references `Application.Contracts`
-- [ ] No `DbContext` injected in Application layer
-- [ ] No domain logic in Controllers
-- [ ] Repository interfaces in Domain, implementations in data layer
-- [ ] No cross-references between sibling application modules
+- `Domain.Shared` has zero project references
+- `Domain` only references `Domain.Shared`
+- `Application.Contracts` only references `Domain.Shared`
+- `Application` only references `Domain` and `Application.Contracts`
+- `EntityFrameworkCore` only references `Domain`
+- `MongoDB` only references `Domain`
+- `HttpApi` only references `Application.Contracts`
+- `HttpApi.Client` only references `Application.Contracts`
+- No `DbContext` injected in Application layer
+- No domain logic in Controllers
+- Repository interfaces in Domain, implementations in data layer
+- No cross-references between sibling application modules
 
 ## Enforcement Checklist (Layered Templates)
 

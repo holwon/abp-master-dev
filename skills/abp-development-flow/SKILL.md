@@ -382,17 +382,17 @@ public class BookAppService_Tests : MyProjectApplicationTestBase
 
 ## Checklist for New Features
 
-- [ ] Entity created with proper constructors (primary + protected parameterless)
-- [ ] Constants and enums in Domain.Shared
-- [ ] Custom repository interface in Domain (only if custom queries needed)
-- [ ] EF Core DbSet added to DbContext
-- [ ] Entity configuration with `ConfigureByConvention()`
-- [ ] Custom repository implementation (only if interface defined)
-- [ ] Migration generated and applied via DbMigrator
-- [ ] DTOs created in Application.Contracts (separate input per method)
-- [ ] Service interface defined with proper naming conventions
-- [ ] Service implementation with `[Authorize]` (use `virtual` for reusable modules)
-- [ ] Object mapping configured (Mapperly or AutoMapper)
-- [ ] Localization keys added to JSON files
-- [ ] Permissions defined and registered
-- [ ] Tests written for happy path and error cases
+- Entity created with proper constructors (primary + protected parameterless)
+- Constants and enums in Domain.Shared
+- Custom repository interface in Domain (only if custom queries needed)
+- EF Core DbSet added to DbContext
+- Entity configuration with `ConfigureByConvention()`
+- Custom repository implementation (only if interface defined)
+- Migration generated and applied via DbMigrator
+- DTOs created in Application.Contracts (separate input per method)
+- Service interface defined with proper naming conventions
+- Service implementation with `[Authorize]` (use `virtual` for reusable modules)
+- Object mapping configured (Mapperly or AutoMapper)
+- Localization keys added to JSON files
+- Permissions defined and registered
+- Tests written for happy path and error cases

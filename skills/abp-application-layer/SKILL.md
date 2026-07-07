@@ -429,17 +429,17 @@ public interface IFileAppService : IApplicationService
 
 ## Best Practices Checklist
 
-- [ ] Interface inherits `IApplicationService`
-- [ ] Implementation inherits `ApplicationService`
-- [ ] Public methods are `virtual` (required for reusable modules, optional for your own app)
-- [ ] Method names follow conventions (`GetAsync`, `CreateAsync`, etc.)
-- [ ] ID passed as separate parameter, not inside UpdateDto
-- [ ] DTOs in `Application.Contracts` project
-- [ ] Each method has its own input DTO
-- [ ] Data annotations used for validation
-- [ ] Domain rules in entities/services, not in DTO validation
-- [ ] `BusinessException` with namespaced error codes
-- [ ] `UpdateAsync` called explicitly after mutations
-- [ ] No cross-service calls within same module
-- [ ] No web types (`IFormFile`, `Stream`) in app services
-- [ ] Use base class properties (`Clock`, `GuidGenerator`, `L`) instead of injecting
+- Interface inherits `IApplicationService`
+- Implementation inherits `ApplicationService`
+- Public methods are `virtual` (required for reusable modules, optional for your own app)
+- Method names follow conventions (`GetAsync`, `CreateAsync`, etc.)
+- ID passed as separate parameter, not inside UpdateDto
+- DTOs in `Application.Contracts` project
+- Each method has its own input DTO
+- Data annotations used for validation
+- Domain rules in entities/services, not in DTO validation
+- `BusinessException` with namespaced error codes
+- `UpdateAsync` called explicitly after mutations
+- No cross-service calls within same module
+- No web types (`IFormFile`, `Stream`) in app services
+- Use base class properties (`Clock`, `GuidGenerator`, `L`) instead of injecting

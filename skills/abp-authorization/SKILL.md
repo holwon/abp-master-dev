@@ -272,15 +272,15 @@ public class MyService : ITransientDependency
 
 ## Best Practices Checklist
 
-- [ ] Permission constants defined in `Application.Contracts`
-- [ ] `PermissionDefinitionProvider` registered in `Application.Contracts` module
-- [ ] Hierarchical permission structure (parent → child)
-- [ ] `[Authorize]` on all protected application service methods
-- [ ] `CheckPolicyAsync()` for mandatory checks
-- [ ] `IsGrantedAsync()` for conditional logic
-- [ ] Ownership validation for resource-level access
-- [ ] `CurrentUser` used for identity (never from client input)
-- [ ] Multi-tenancy side specified when needed
-- [ ] Feature-dependent permissions when applicable
+- Permission constants defined in `Application.Contracts`
+- `PermissionDefinitionProvider` registered in `Application.Contracts` module
+- Hierarchical permission structure (parent → child)
+- `[Authorize]` on all protected application service methods
+- `CheckPolicyAsync()` for mandatory checks
+- `IsGrantedAsync()` for conditional logic
+- Ownership validation for resource-level access
+- `CurrentUser` used for identity (never from client input)
+- Multi-tenancy side specified when needed
+- Feature-dependent permissions when applicable
 - Filter queries by current user when appropriate
 - Don't expose sensitive fields in DTOs

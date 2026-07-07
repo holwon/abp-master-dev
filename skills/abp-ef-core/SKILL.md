@@ -319,18 +319,18 @@ Configure<AbpDbContextOptions>(options =>
 
 ## Best Practices Checklist
 
-- [ ] DbContext inherits from `AbpDbContext<TDbContext>`
-- [ ] `base.OnModelCreating(builder)` called first
-- [ ] `b.ConfigureByConvention()` called for every entity
-- [ ] Entity configuration in extension methods, not in `OnModelCreating`
-- [ ] `TablePrefix` and `Schema` as static properties
-- [ ] Repository inherits from `EfCoreRepository<TDbContext, TEntity, TKey>`
-- [ ] Repository uses DbContext interface as generic parameter
-- [ ] `IncludeDetails` extension method per aggregate root
-- [ ] `GetCancellationToken(cancellationToken)` used in all async calls
-- [ ] `AddDefaultRepositories()` without `includeAllEntities: true`
-- [ ] Migrations run via DbMigrator (not just `dotnet ef database update`)
-- [ ] Data seeding via `IDataSeedContributor`
+- DbContext inherits from `AbpDbContext<TDbContext>`
+- `base.OnModelCreating(builder)` called first
+- `b.ConfigureByConvention()` called for every entity
+- Entity configuration in extension methods, not in `OnModelCreating`
+- `TablePrefix` and `Schema` as static properties
+- Repository inherits from `EfCoreRepository<TDbContext, TEntity, TKey>`
+- Repository uses DbContext interface as generic parameter
+- `IncludeDetails` extension method per aggregate root
+- `GetCancellationToken(cancellationToken)` used in all async calls
+- `AddDefaultRepositories()` without `includeAllEntities: true`
+- Migrations run via DbMigrator (not just `dotnet ef database update`)
+- Data seeding via `IDataSeedContributor`
 
         Configure<AbpDbContextOptions>(options =>
         {

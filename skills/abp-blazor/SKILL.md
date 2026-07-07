@@ -306,13 +306,13 @@ public abstract class BooksBase : AbpComponentBase
 
 ## Best Practices Checklist
 
-- [ ] Components inherit from `AbpComponentBase` or `AbpCrudPageBase`
-- [ ] `L["Key"]` used for all user-facing strings
-- [ ] `AuthorizationService.IsGrantedAsync()` for permission checks
-- [ ] `IMenuContributor` for navigation configuration
-- [ ] `Message.Success()` / `Message.Confirm()` for user interaction
-- [ ] `Notify.Success()` for non-blocking notifications
-- [ ] `Validations` component for form validation
-- [ ] Service proxies from `HttpApi.Client` for data access
-- [ ] Code-behind pattern for separation of concerns
-- [ ] `DataGrid` with `ReadData` for server-side pagination
+- Components inherit from `AbpComponentBase` or `AbpCrudPageBase`
+- `L["Key"]` used for all user-facing strings
+- `AuthorizationService.IsGrantedAsync()` for permission checks
+- `IMenuContributor` for navigation configuration
+- `Message.Success()` / `Message.Confirm()` for user interaction
+- `Notify.Success()` for non-blocking notifications
+- `Validations` component for form validation
+- Service proxies from `HttpApi.Client` for data access
+- Code-behind pattern for separation of concerns
+- `DataGrid` with `ReadData` for server-side pagination
