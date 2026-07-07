@@ -5,12 +5,13 @@ description: ABP development workflow - step-by-step guide for adding new entiti
 
 # ABP Development Workflow
 
-> **Tutorials**: https://abp.io/docs/latest/tutorials
+Step-by-step guide for adding a new entity with full DDD patterns in an ABP layered application.
 
-## Adding a New Entity (Full Flow)
+## Adding a New Entity (Complete 11-Step Flow)
 
-### 1. Domain Layer
-Create entity (location varies by template: `*.Domain/Entities/` for layered, `Entities/` for single-layer/microservice):
+### Step 1: Domain Entity
+
+Create the entity in `*.Domain/Entities/` (layered) or `Entities/` (single-layer/microservice):
 
 ```csharp
 public class Book : AggregateRoot<Guid>
@@ -18,128 +19,194 @@ public class Book : AggregateRoot<Guid>
     public string Name { get; private set; }
     public decimal Price { get; private set; }
     public Guid AuthorId { get; private set; }
+    public DateTime PublishDate { get; private set; }
 
-    protected Book() { }
+    protected Book() { }  // Required for ORM
 
-    public Book(Guid id, string name, decimal price, Guid authorId) : base(id)
+    public Book(Guid id, string name, decimal price, Guid authorId, DateTime publishDate)
+        : base(id)
     {
         Name = Check.NotNullOrWhiteSpace(name, nameof(name));
         SetPrice(price);
         AuthorId = authorId;
+        PublishDate = publishDate;
     }
 
     public void SetPrice(decimal price)
     {
         Price = Check.Range(price, nameof(price), 0, 9999);
     }
+
+    public void ChangeName(string newName)
+    {
+        Name = Check.NotNullOrWhiteSpace(newName, nameof(newName));
+    }
 }
 ```
 
-### 2. Domain.Shared
+### Step 2: Domain.Shared Constants & Enums
+
 Add constants and enums in `*.Domain.Shared/`:
 
 ```csharp
 public static class BookConsts
 {
     public const int MaxNameLength = 128;
+    public const int MaxDescriptionLength = 2000;
 }
 
 public enum BookType
 {
     Novel,
     Science,
-    Biography
+    Biography,
+    History
 }
 ```
 
-### 3. Repository Interface (Optional)
-Define custom repository in `*.Domain/` only if you need custom query methods. For simple CRUD, use generic `IRepository<Book, Guid>` directly:
+### Step 3: Repository Interface (Optional)
+
+Define custom repository in `*.Domain/` only if you need custom query methods. For simple CRUD, skip this step and use generic `IRepository<Book, Guid>` directly:
 
 ```csharp
-// Only if custom queries are needed
+// Only create if custom queries are needed
 public interface IBookRepository : IRepository<Book, Guid>
 {
-    Task<Book> FindByNameAsync(string name);
+    Task<Book> FindByNameAsync(
+        string name,
+        bool includeDetails = true,
+        CancellationToken cancellationToken = default);
+
+    Task<List<Book>> GetListByAuthorAsync(
+        Guid authorId,
+        bool includeDetails = false,
+        CancellationToken cancellationToken = default);
 }
 ```
 
-### 4. EF Core Configuration
+### Step 4: EF Core Configuration
+
 In `*.EntityFrameworkCore/`:
 
-**DbContext:**
+**Add DbSet to DbContext:**
+
 ```csharp
 public DbSet<Book> Books { get; set; }
 ```
 
-**OnModelCreating:**
+**Add entity configuration in extension method:**
+
 ```csharp
 builder.Entity<Book>(b =>
 {
     b.ToTable(MyProjectConsts.DbTablePrefix + "Books", MyProjectConsts.DbSchema);
-    b.ConfigureByConvention();
-    b.Property(x => x.Name).IsRequired().HasMaxLength(BookConsts.MaxNameLength);
+    b.ConfigureByConvention();  // MUST call first
+
+    b.Property(x => x.Name)
+        .IsRequired()
+        .HasMaxLength(BookConsts.MaxNameLength);
+
+    b.Property(x => x.Price)
+        .HasColumnType("decimal(18,2)");
+
     b.HasIndex(x => x.Name);
+
+    b.HasOne<Author>()
+        .WithMany()
+        .HasForeignKey(x => x.AuthorId)
+        .OnDelete(DeleteBehavior.Restrict);
 });
 ```
 
-**Repository Implementation (only if custom interface defined):**
-```csharp
-public class BookRepository : EfCoreRepository<MyDbContext, Book, Guid>, IBookRepository
-{
-    public BookRepository(IDbContextProvider<MyDbContext> dbContextProvider)
-        : base(dbContextProvider)
-    {
-    }
+**Repository Implementation (only if custom interface defined in Step 3):**
 
-    public async Task<Book> FindByNameAsync(string name)
+```csharp
+public class BookRepository :
+    EfCoreRepository<MyProjectDbContext, Book, Guid>,
+    IBookRepository
+{
+    public BookRepository(IDbContextProvider<MyProjectDbContext> dbContextProvider)
+        : base(dbContextProvider) { }
+
+    public async Task<Book> FindByNameAsync(
+        string name,
+        bool includeDetails = true,
+        CancellationToken cancellationToken = default)
     {
-        return await (await GetDbSetAsync())
-            .FirstOrDefaultAsync(b => b.Name == name);
+        var dbSet = await GetDbSetAsync();
+        return await dbSet
+            .IncludeDetails(includeDetails)
+            .FirstOrDefaultAsync(b => b.Name == name,
+                GetCancellationToken(cancellationToken));
     }
 }
 ```
 
-### 5. Run Migration
-See `abp-ef-core` skill for migration commands. Recommended: use `DbMigrator` project to apply migrations and seed data.
+### Step 5: Run Migration
 
-### 6. Application.Contracts
-Create DTOs and service interface:
+```bash
+cd src/MyProject.EntityFrameworkCore
+dotnet ef migrations add AddedBookEntity
+dotnet run --project ../MyProject.DbMigrator
+```
+
+### Step 6: Application.Contracts — DTOs & Service Interface
 
 ```csharp
-// DTOs
-public class BookDto : EntityDto<Guid>
+// Output DTO
+public class BookDto : AuditedEntityDto<Guid>
 {
     public string Name { get; set; }
     public decimal Price { get; set; }
     public Guid AuthorId { get; set; }
+    public string AuthorName { get; set; }  // From navigation
+    public DateTime PublishDate { get; set; }
 }
 
+// Create input DTO
 public class CreateBookDto
 {
     [Required]
     [StringLength(BookConsts.MaxNameLength)]
     public string Name { get; set; }
 
+    [Required]
     [Range(0, 9999)]
     public decimal Price { get; set; }
 
     [Required]
     public Guid AuthorId { get; set; }
+
+    [DataType(DataType.Date)]
+    public DateTime PublishDate { get; set; }
 }
 
-// Service Interface
+// Update input DTO
+public class UpdateBookDto
+{
+    [Required]
+    [StringLength(BookConsts.MaxNameLength)]
+    public string Name { get; set; }
+
+    [Required]
+    [Range(0, 9999)]
+    public decimal Price { get; set; }
+}
+
+// Service interface
 public interface IBookAppService : IApplicationService
 {
     Task<BookDto> GetAsync(Guid id);
     Task<PagedResultDto<BookDto>> GetListAsync(PagedAndSortedResultRequestDto input);
     Task<BookDto> CreateAsync(CreateBookDto input);
+    Task<BookDto> UpdateAsync(Guid id, UpdateBookDto input);
+    Task DeleteAsync(Guid id);
 }
 ```
 
-### 7. Object Mapping (Mapperly / AutoMapper)
-ABP supports both Mapperly and AutoMapper. Prefer the provider already used in the solution.
+### Step 7: Object Mapping
 
-If the solution uses **Mapperly**, create a mapper in the Application project:
+**Mapperly (default):**
 
 ```csharp
 [Mapper]
@@ -151,12 +218,12 @@ public partial class BookMapper
 ```
 
 Register in module:
+
 ```csharp
 context.Services.AddSingleton<BookMapper>();
 ```
 
-### 8. Application Service
-Implement service (using generic repository - use `IBookRepository` if you defined custom interface in step 3):
+### Step 8: Application Service Implementation
 
 ```csharp
 public class BookAppService : ApplicationService, IBookAppService
@@ -178,6 +245,22 @@ public class BookAppService : ApplicationService, IBookAppService
         return _bookMapper.MapToDto(book);
     }
 
+    public async Task<PagedResultDto<BookDto>> GetListAsync(
+        PagedAndSortedResultRequestDto input)
+    {
+        var queryable = await _bookRepository.GetQueryableAsync();
+        var totalCount = await queryable.CountAsync();
+        var books = await queryable
+            .OrderBy(b => b.Name)
+            .PageBy(input)
+            .ToListAsync();
+
+        return new PagedResultDto<BookDto>(
+            totalCount,
+            _bookMapper.MapToDtoList(books)
+        );
+    }
+
     [Authorize(MyProjectPermissions.Books.Create)]
     public async Task<BookDto> CreateAsync(CreateBookDto input)
     {
@@ -185,40 +268,79 @@ public class BookAppService : ApplicationService, IBookAppService
             GuidGenerator.Create(),
             input.Name,
             input.Price,
-            input.AuthorId
+            input.AuthorId,
+            input.PublishDate
         );
 
         await _bookRepository.InsertAsync(book);
         return _bookMapper.MapToDto(book);
     }
+
+    [Authorize(MyProjectPermissions.Books.Edit)]
+    public async Task<BookDto> UpdateAsync(Guid id, UpdateBookDto input)
+    {
+        var book = await _bookRepository.GetAsync(id);
+        book.ChangeName(input.Name);
+        book.SetPrice(input.Price);
+        await _bookRepository.UpdateAsync(book);
+        return _bookMapper.MapToDto(book);
+    }
+
+    [Authorize(MyProjectPermissions.Books.Delete)]
+    public async Task DeleteAsync(Guid id)
+    {
+        await _bookRepository.DeleteAsync(id);
+    }
 }
 ```
 
-### 9. Add Localization
-In `*.Domain.Shared/Localization/*/en.json`:
+### Step 9: Localization
+
+In `*.Domain.Shared/Localization/{ResourceName}/en.json`:
 
 ```json
 {
   "Book": "Book",
   "Books": "Books",
   "BookName": "Name",
-  "BookPrice": "Price"
+  "BookPrice": "Price",
+  "NewBook": "New Book",
+  "EditBook": "Edit Book",
+  "BookDeletionConfirmationMessage": "Are you sure to delete the book {0}?"
 }
 ```
 
-### 10. Add Permissions (if needed)
+### Step 10: Permissions
+
 ```csharp
 public static class MyProjectPermissions
 {
+    public const string GroupName = "MyProject";
+
     public static class Books
     {
-        public const string Default = "MyProject.Books";
+        public const string Default = GroupName + ".Books";
         public const string Create = Default + ".Create";
+        public const string Edit = Default + ".Edit";
+        public const string Delete = Default + ".Delete";
     }
 }
 ```
 
-### 11. Add Tests
+Register in `PermissionDefinitionProvider`:
+
+```csharp
+var booksPermission = myGroup.AddPermission(
+    MyProjectPermissions.Books.Default,
+    L("Permission:Books"));
+
+booksPermission.AddChild(MyProjectPermissions.Books.Create, L("Permission:Books.Create"));
+booksPermission.AddChild(MyProjectPermissions.Books.Edit, L("Permission:Books.Edit"));
+booksPermission.AddChild(MyProjectPermissions.Books.Delete, L("Permission:Books.Delete"));
+```
+
+### Step 11: Tests
+
 ```csharp
 public class BookAppService_Tests : MyProjectApplicationTestBase
 {
@@ -235,27 +357,42 @@ public class BookAppService_Tests : MyProjectApplicationTestBase
         var result = await _bookAppService.CreateAsync(new CreateBookDto
         {
             Name = "Test Book",
-            Price = 19.99m
+            Price = 19.99m,
+            AuthorId = Guid.NewGuid(),
+            PublishDate = DateTime.UtcNow
         });
 
         result.Id.ShouldNotBe(Guid.Empty);
         result.Name.ShouldBe("Test Book");
+        result.Price.ShouldBe(19.99m);
+    }
+
+    [Fact]
+    public async Task Should_Not_Create_Book_With_Empty_Name()
+    {
+        var input = new CreateBookDto { Name = "", Price = 10m };
+
+        await Should.ThrowAsync<AbpValidationException>(async () =>
+        {
+            await _bookAppService.CreateAsync(input);
+        });
     }
 }
 ```
 
 ## Checklist for New Features
 
-- [ ] Entity created with proper constructors
-- [ ] Constants in Domain.Shared
+- [ ] Entity created with proper constructors (primary + protected parameterless)
+- [ ] Constants and enums in Domain.Shared
 - [ ] Custom repository interface in Domain (only if custom queries needed)
-- [ ] EF Core configuration added
+- [ ] EF Core DbSet added to DbContext
+- [ ] Entity configuration with `ConfigureByConvention()`
 - [ ] Custom repository implementation (only if interface defined)
-- [ ] Migration generated and applied (use DbMigrator)
-- [ ] Mapperly mapper created and registered
-- [ ] DTOs created in Application.Contracts
-- [ ] Service interface defined
-- [ ] Service implementation with authorization
-- [ ] Localization keys added
-- [ ] Permissions defined (if applicable)
-- [ ] Tests written
+- [ ] Migration generated and applied via DbMigrator
+- [ ] DTOs created in Application.Contracts (separate input per method)
+- [ ] Service interface defined with proper naming conventions
+- [ ] Service implementation with `[Authorize]` (use `virtual` for reusable modules)
+- [ ] Object mapping configured (Mapperly or AutoMapper)
+- [ ] Localization keys added to JSON files
+- [ ] Permissions defined and registered
+- [ ] Tests written for happy path and error cases

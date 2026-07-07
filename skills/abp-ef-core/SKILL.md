@@ -5,25 +5,42 @@ description: ABP Entity Framework Core - DbContext, entity configuration, EfCore
 
 # ABP Entity Framework Core
 
-> **Docs**: https://abp.io/docs/latest/framework/data/entity-framework-core
+ABP provides base classes and conventions for EF Core integration. The EF Core project depends ONLY on the Domain project — never on Application or other layers.
 
 ## Never Do
 
-| Don't | Do Instead |
-|-------|-----------|
-| Skip `b.ConfigureByConvention()` | Always call it first in entity config |
-| `AddDefaultRepositories(includeAllEntities: true)` | Use `AddDefaultRepositories()` only for aggregate roots |
-| Inject `DbContext` in application/domain services | Use `IRepository<T>` or custom repository interface |
-| Use `DbContext` directly outside the EF Core project | Access via `GetDbContextAsync()` inside repository only |
+| Don't | Do Instead | Why |
+|-------|-----------|-----|
+| Skip `b.ConfigureByConvention()` | Always call it first in entity config | Sets up ABP conventions (audit, soft-delete, extra properties) |
+| `AddDefaultRepositories(includeAllEntities: true)` | Use `AddDefaultRepositories()` only for aggregate roots | Creates repos for child entities, breaking DDD consistency |
+| Inject `DbContext` in application/domain services | Use `IRepository<T>` or custom repository interface | Violates layering, couples to EF Core |
+| Use `DbContext` directly outside the EF Core project | Access via `GetDbContextAsync()` inside repository only | Encapsulation, testability |
+| Enable lazy loading | Use eager loading via `IncludeDetails` | Lazy loading causes N+1 queries, hard to debug |
 
 ## DbContext Configuration
 
+### DbContext Interface (Optional but Recommended for Modules)
+
 ```csharp
 [ConnectionStringName("Default")]
-public class MyProjectDbContext : AbpDbContext<MyProjectDbContext>
+public interface IMyProjectDbContext : IEfCoreDbContext
+{
+    DbSet<Book> Books { get; }  // No setters, aggregate roots only
+}
+```
+
+### DbContext Class
+
+```csharp
+[ConnectionStringName("Default")]
+public class MyProjectDbContext : AbpDbContext<MyProjectDbContext>, IMyProjectDbContext
 {
     public DbSet<Book> Books { get; set; }
     public DbSet<Author> Authors { get; set; }
+
+    // Static table prefix and schema for module extensibility
+    public static string TablePrefix { get; set; } = MyProjectConsts.DefaultDbTablePrefix;
+    public static string? Schema { get; set; } = MyProjectConsts.DefaultDbSchema;
 
     public MyProjectDbContext(DbContextOptions<MyProjectDbContext> options)
         : base(options)
@@ -32,15 +49,17 @@ public class MyProjectDbContext : AbpDbContext<MyProjectDbContext>
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(builder);
-
-        // Configure all entities
-        builder.ConfigureMyProject();
+        base.OnModelCreating(builder);  // MUST call base first
+        builder.ConfigureMyProject();    // Extension method for entity config
     }
 }
 ```
 
+> Always call `base.OnModelCreating(builder)` FIRST inside the override.
+
 ## Entity Configuration
+
+Use extension methods on `ModelBuilder` — never configure entities directly in `OnModelCreating`:
 
 ```csharp
 public static class MyProjectDbContextModelCreatingExtensions
@@ -51,8 +70,8 @@ public static class MyProjectDbContextModelCreatingExtensions
 
         builder.Entity<Book>(b =>
         {
-            b.ToTable(MyProjectConsts.DbTablePrefix + "Books", MyProjectConsts.DbSchema);
-            b.ConfigureByConvention(); // ABP conventions (audit, soft-delete, etc.)
+            b.ToTable(MyProjectDbContext.TablePrefix + "Books", MyProjectDbContext.Schema);
+            b.ConfigureByConvention(); // MUST call for EVERY entity — sets up ABP conventions
 
             // Property configurations
             b.Property(x => x.Name)
@@ -65,22 +84,40 @@ public static class MyProjectDbContextModelCreatingExtensions
             // Indexes
             b.HasIndex(x => x.Name);
 
-            // Relationships
+            // Relationships — reference by ID, not navigation to other aggregate roots
             b.HasOne<Author>()
                 .WithMany()
                 .HasForeignKey(x => x.AuthorId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        builder.Entity<Author>(b =>
+        {
+            b.ToTable(MyProjectDbContext.TablePrefix + "Authors", MyProjectDbContext.Schema);
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name).IsRequired().HasMaxLength(AuthorConsts.MaxNameLength);
+        });
     }
 }
 ```
 
+### Key Rules for Entity Configuration
+
+- Always call `b.ConfigureByConvention()` for EVERY mapped entity
+- Use `TablePrefix` and `Schema` from DbContext static properties (for module extensibility)
+- Use constants from `Domain.Shared` for lengths and constraints
+- Configure indexes for frequently queried columns
+- Use `DeleteBehavior.Restrict` for foreign keys (avoid cascade deletes)
+
 ## Repository Implementation
 
+Inherit from `EfCoreRepository<TDbContext, TEntity, TKey>`. Use the DbContext **interface** as the generic parameter:
+
 ```csharp
-public class BookRepository : EfCoreRepository<MyProjectDbContext, Book, Guid>, IBookRepository
+public class BookRepository : EfCoreRepository<IMyProjectDbContext, Book, Guid>, IBookRepository
 {
-    public BookRepository(IDbContextProvider<MyProjectDbContext> dbContextProvider)
+    public BookRepository(IDbContextProvider<IMyProjectDbContext> dbContextProvider)
         : base(dbContextProvider)
     {
     }
@@ -120,7 +157,10 @@ public class BookRepository : EfCoreRepository<MyProjectDbContext, Book, Guid>, 
 }
 ```
 
-## Extension Method for Include
+### IncludeDetails Extension Method
+
+Create an extension method per aggregate root for eager loading sub-collections:
+
 ```csharp
 public static class BookEfCoreQueryableExtensions
 {
@@ -134,32 +174,52 @@ public static class BookEfCoreQueryableExtensions
         }
 
         return queryable
-            .Include(b => b.Reviews);
+            .Include(b => b.Reviews)
+            .Include(b => b.Tags);
     }
 }
 ```
 
+### Repository Best Practices
+
+- Use `GetDbSetAsync()` or `GetQueryableAsync()` to access data (applies ABP data filters)
+- Use `GetCancellationToken(cancellationToken)` to pass cancellation tokens
+- Override `WithDetailsAsync()` for default eager loading
+- Use DbContext **interface** as generic parameter (enables testing with in-memory provider)
+
 ## Migration Commands
 
 ```bash
-# Navigate to EF Core project
+# Navigate to EF Core project directory first
 cd src/MyProject.EntityFrameworkCore
 
-# Add migration
-dotnet ef migrations add MigrationName
+# Add a new migration
+dotnet ef migrations add AddedBookEntity
 
-# Apply migration (choose one):
-dotnet run --project ../MyProject.DbMigrator   # Recommended - also seeds data
-dotnet ef database update  # EF Core command only
+# Apply migration via DbMigrator (recommended — also seeds data)
+dotnet run --project ../MyProject.DbMigrator
 
-# Remove last migration (if not applied)
+# Or apply directly via EF Core CLI
+dotnet ef database update
+
+# Remove last migration (if not yet applied to database)
 dotnet ef migrations remove
 
-# Generate SQL script
+# Generate SQL script for manual deployment
 dotnet ef migrations script
+
+# List all migrations
+dotnet ef migrations list
 ```
 
-> **Note**: ABP templates include `IDesignTimeDbContextFactory` in the EF Core project, so `-s` (startup project) parameter is not needed.
+> ABP templates include `IDesignTimeDbContextFactory` in the EF Core project, so the `-s` (startup project) parameter is NOT needed.
+
+### DbMigrator
+
+The DbMigrator is a console application that:
+1. Applies pending migrations
+2. Runs data seed contributors (`IDataSeedContributor`)
+3. Can be run as part of CI/CD pipeline
 
 ## Module Configuration
 
@@ -173,10 +233,104 @@ public class MyProjectEntityFrameworkCoreModule : AbpModule
         {
             // Add default repositories for aggregate roots only (DDD best practice)
             options.AddDefaultRepositories();
-            // ⚠️ Avoid includeAllEntities: true - it creates repositories for child entities,
+
+            // ⚠️ Avoid includeAllEntities: true — it creates repositories for child entities,
             // allowing them to be modified without going through the aggregate root,
             // which breaks data consistency
         });
+    }
+}
+```
+
+## Data Seeding
+
+Implement `IDataSeedContributor` to seed initial data:
+
+```csharp
+public class BookStoreDataSeedContributor : IDataSeedContributor, ITransientDependency
+{
+    private readonly IRepository<Book, Guid> _bookRepository;
+
+    public BookStoreDataSeedContributor(IRepository<Book, Guid> bookRepository)
+    {
+        _bookRepository = bookRepository;
+    }
+
+    public async Task SeedAsync(DataSeedContext context)
+    {
+        if (await _bookRepository.GetCountAsync() > 0)
+        {
+            return; // Already seeded
+        }
+
+        await _bookRepository.InsertAsync(
+            new Book(GuidGenerator.Create(), "The Art of Computer Programming", 99.99m)
+        );
+    }
+}
+```
+
+## Database Provider Configuration
+
+ABP supports multiple database providers. Configure in the host application:
+
+```csharp
+// SQL Server (default)
+context.Services.AddAbpDbContext<MyProjectDbContext>(options =>
+{
+    options.AddDefaultRepositories();
+});
+
+Configure<AbpDbContextOptions>(options =>
+{
+    options.UseSqlServer();
+});
+
+// PostgreSQL
+Configure<AbpDbContextOptions>(options =>
+{
+    options.UseNpgsql();
+});
+
+// MySQL
+Configure<AbpDbContextOptions>(options =>
+{
+    options.UseMySQL();
+});
+
+// SQLite (for testing)
+Configure<AbpDbContextOptions>(options =>
+{
+    options.UseSqlite();
+});
+```
+
+## Anti-Patterns
+
+| Anti-Pattern | Why It's Wrong | Correct Approach |
+|-------------|---------------|-----------------|
+| Skipping `ConfigureByConvention()` | ABP conventions not applied (audit, soft-delete) | Always call it first in entity config |
+| `includeAllEntities: true` | Creates repos for child entities | Only add repos for aggregate roots |
+| Injecting `DbContext` in Application layer | Violates layering | Use `IRepository<T>` or custom repository |
+| Configuring entities in `OnModelCreating` directly | Hard to maintain, not extensible | Use extension methods |
+| Enabling lazy loading | N+1 queries, hard to debug | Use `IncludeDetails` for eager loading |
+| Not calling `base.OnModelCreating()` | ABP base configurations skipped | Always call base first |
+| Hardcoding table names | Not extensible for modules | Use `TablePrefix` and `Schema` static properties |
+
+## Best Practices Checklist
+
+- [ ] DbContext inherits from `AbpDbContext<TDbContext>`
+- [ ] `base.OnModelCreating(builder)` called first
+- [ ] `b.ConfigureByConvention()` called for every entity
+- [ ] Entity configuration in extension methods, not in `OnModelCreating`
+- [ ] `TablePrefix` and `Schema` as static properties
+- [ ] Repository inherits from `EfCoreRepository<TDbContext, TEntity, TKey>`
+- [ ] Repository uses DbContext interface as generic parameter
+- [ ] `IncludeDetails` extension method per aggregate root
+- [ ] `GetCancellationToken(cancellationToken)` used in all async calls
+- [ ] `AddDefaultRepositories()` without `includeAllEntities: true`
+- [ ] Migrations run via DbMigrator (not just `dotnet ef database update`)
+- [ ] Data seeding via `IDataSeedContributor`
 
         Configure<AbpDbContextOptions>(options =>
         {

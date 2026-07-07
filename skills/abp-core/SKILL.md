@@ -5,19 +5,20 @@ description: Core ABP Framework conventions - module system, DI registration, ba
 
 # ABP Core Conventions
 
-> **Documentation**: https://abp.io/docs/latest
-> **API Reference**: https://abp.io/docs/api/
+ABP Framework provides a modular, layered architecture with built-in dependency injection, localization, exception handling, and async patterns. These conventions apply to ALL ABP projects.
 
 ## Key Rules
 
 - Use `IClock` / `Clock.Now` instead of `DateTime.Now` / `DateTime.UtcNow`
-- Use `ITransientDependency` / `ISingletonDependency` instead of `AddScoped/AddTransient/AddSingleton`
+- Use `ITransientDependency` / `IScopedDependency` / `ISingletonDependency` marker interfaces instead of manual `AddScoped`/`AddTransient`/`AddSingleton`
 - Use `IRepository<T>` instead of injecting `DbContext` directly
 - Check base class properties (`Clock`, `CurrentUser`, `GuidGenerator`, `L`) before injecting services
 - Use `BusinessException` with namespaced error codes for domain rule violations
+- All async methods must end with `Async` suffix
 
 ## Module System
-Every ABP application/module has a module class that configures services:
+
+Every ABP application/module has a module class that configures services. Modules declare dependencies via `[DependsOn]`:
 
 ```csharp
 [DependsOn(
@@ -29,36 +30,91 @@ public class MyAppModule : AbpModule
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         // Service registration and configuration
+        context.Services.AddAbpDbContext<MyAppDbContext>(options =>
+        {
+            options.AddDefaultRepositories();
+        });
+    }
+
+    public override void OnApplicationInitialization(ApplicationInitializationContext context)
+    {
+        // Middleware configuration — only in final host application
+        var app = context.GetApplicationBuilder();
+        app.UseRouting();
+        app.UseMvc();
     }
 }
 ```
 
-> **Note**: Middleware configuration (`OnApplicationInitialization`) should only be done in the final host application, not in reusable modules.
+> Middleware configuration (`OnApplicationInitialization`) should only be done in the **final host application**, not in reusable modules.
 
 ## Dependency Injection Conventions
 
-### Automatic Registration
-ABP automatically registers services implementing marker interfaces:
-- `ITransientDependency` → Transient lifetime
-- `ISingletonDependency` → Singleton lifetime
-- `IScopedDependency` → Scoped lifetime
+### Automatic Registration via Marker Interfaces
 
-Classes inheriting from `ApplicationService`, `DomainService`, `AbpController` are also auto-registered.
+ABP automatically registers services implementing these marker interfaces:
 
-### Repository Usage
-You can use the generic `IRepository<TEntity, TKey>` for simple CRUD operations. Define custom repository interfaces only when you need custom query methods:
+| Interface | Lifetime | Use When |
+|-----------|----------|----------|
+| `ITransientDependency` | Transient | Lightweight, stateless services |
+| `IScopedDependency` | Scoped | Per-request services |
+| `ISingletonDependency` | Singleton | Application-wide state |
 
 ```csharp
-// Simple CRUD - Generic repository is fine
+public class MyService : ITransientDependency
+{
+    // Automatically registered as Transient
+}
+
+public class MyCacheService : ISingletonDependency
+{
+    // Automatically registered as Singleton
+}
+```
+
+### Auto-Registered Base Classes
+
+Classes inheriting from these base classes are also auto-registered:
+
+| Base Class | Lifetime |
+|-----------|----------|
+| `ApplicationService` | Transient |
+| `DomainService` | Transient |
+| `AbpController` | Transient |
+| `AbpPageModel` | Transient |
+
+### Exposing Services
+
+Use `[ExposeServices]` to control which interfaces a service is exposed as:
+
+```csharp
+[ExposeServices(typeof(IMyService), typeof(IMyOtherService))]
+public class MyService : IMyService, IMyOtherService, ITransientDependency
+{
+}
+```
+
+### Repository Usage
+
+Use the generic `IRepository<TEntity, TKey>` for simple CRUD. Define custom repository interfaces only when you need custom query methods:
+
+```csharp
+// Simple CRUD — Generic repository is fine
 public class BookAppService : ApplicationService
 {
     private readonly IRepository<Book, Guid> _bookRepository; // ✅ OK for simple operations
+
+    public async Task<BookDto> GetAsync(Guid id)
+    {
+        var book = await _bookRepository.GetAsync(id);
+        return ObjectMapper.Map<Book, BookDto>(book);
+    }
 }
 
-// Custom queries needed - Define custom interface
+// Custom queries needed — Define custom interface
 public interface IBookRepository : IRepository<Book, Guid>
 {
-    Task<Book> FindByNameAsync(string name); // Custom query
+    Task<Book> FindByNameAsync(string name);
 }
 
 public class BookAppService : ApplicationService
@@ -67,50 +123,71 @@ public class BookAppService : ApplicationService
 }
 ```
 
-### Exposing Services
-```csharp
-[ExposeServices(typeof(IMyService))]
-public class MyService : IMyService, ITransientDependency { }
-```
-
 ## Important Base Classes
 
-| Base Class | Purpose |
-|------------|---------|
-| `Entity<TKey>` | Basic entity with ID |
-| `AggregateRoot<TKey>` | DDD aggregate root |
-| `DomainService` | Domain business logic |
-| `ApplicationService` | Use case orchestration |
-| `AbpController` | REST API controller |
+| Base Class | Purpose | Layer |
+|------------|---------|-------|
+| `Entity<TKey>` | Basic entity with ID | Domain |
+| `AggregateRoot<TKey>` | DDD aggregate root | Domain |
+| `DomainService` | Domain business logic | Domain |
+| `ApplicationService` | Use case orchestration | Application |
+| `AbpController` | REST API controller | HttpApi |
+| `AbpPageModel` | Razor Page model | Web |
 
-ABP base classes already inject commonly used services as properties. Before injecting a service, check if it's already available:
+### Base Class Pre-Injected Properties
 
-| Property | Available In | Description |
-|----------|--------------|-------------|
-| `GuidGenerator` | All base classes | Generate GUIDs |
-| `Clock` | All base classes | Current time (use instead of `DateTime`) |
-| `CurrentUser` | All base classes | Authenticated user info |
-| `CurrentTenant` | All base classes | Multi-tenancy context |
-| `L` (StringLocalizer) | `ApplicationService`, `AbpController` | Localization |
-| `AuthorizationService` | `ApplicationService`, `AbpController` | Permission checks |
-| `FeatureChecker` | `ApplicationService`, `AbpController` | Feature availability |
-| `DataFilter` | All base classes | Data filtering (soft-delete, tenant) |
-| `UnitOfWorkManager` | `ApplicationService`, `DomainService` | Unit of work management |
-| `LoggerFactory` | All base classes | Create loggers |
-| `Logger` | All base classes | Logging (auto-created) |
-| `LazyServiceProvider` | All base classes | Lazy service resolution |
+ABP base classes already inject commonly used services as properties. **Before injecting a service, check if it's already available:**
 
-**Useful methods from base classes:**
-- `CheckPolicyAsync()` - Check permission and throw if not granted
-- `IsGrantedAsync()` - Check permission without throwing
+| Property | Available In | Type | Description |
+|----------|-------------|------|-------------|
+| `GuidGenerator` | All base classes | `IGuidGenerator` | Generate sequential GUIDs |
+| `Clock` | All base classes | `IClock` | Current time (use instead of `DateTime`) |
+| `CurrentUser` | All base classes | `ICurrentUser` | Authenticated user info |
+| `CurrentTenant` | All base classes | `ICurrentTenant` | Multi-tenancy context |
+| `L` | `ApplicationService`, `AbpController`, `AbpPageModel` | `IStringLocalizer` | Localization |
+| `AuthorizationService` | `ApplicationService`, `AbpController` | `IAuthorizationService` | Permission checks |
+| `FeatureChecker` | `ApplicationService`, `AbpController` | `IFeatureChecker` | Feature availability |
+| `DataFilter` | All base classes | `IDataFilter` | Soft-delete/tenant filter control |
+| `UnitOfWorkManager` | `ApplicationService`, `DomainService` | `IUnitOfWorkManager` | Unit of work management |
+| `LoggerFactory` | All base classes | `ILoggerFactory` | Create loggers |
+| `Logger` | All base classes | `ILogger` | Auto-created logger |
+| `ObjectMapper` | `ApplicationService` | `IObjectMapper` | Object-to-object mapping |
+| `LazyServiceProvider` | All base classes | `ILazyServiceProvider` | Lazy service resolution |
+
+### Useful Methods from Base Classes
+
+```csharp
+// In ApplicationService or AbpController:
+await CheckPolicyAsync("MyPermission");  // Check permission, throw if not granted
+bool granted = await IsGrantedAsync("MyPermission");  // Check without throwing
+```
 
 ## Async Best Practices
-- Use async all the way - never use `.Result` or `.Wait()`
+
+- Use async all the way — never use `.Result` or `.Wait()`
 - All async methods should end with `Async` suffix
-- ABP automatically handles `CancellationToken` in most cases (e.g., from `HttpContext.RequestAborted`)
+- ABP automatically handles `CancellationToken` in most cases (from `HttpContext.RequestAborted`)
 - Only pass `CancellationToken` explicitly when implementing custom cancellation logic
+- Never use `async void` — always return `Task` or `Task<T>`
+
+```csharp
+// ✅ Correct
+public async Task<BookDto> GetAsync(Guid id)
+{
+    var book = await _bookRepository.GetAsync(id);
+    return ObjectMapper.Map<Book, BookDto>(book);
+}
+
+// ❌ Wrong
+public BookDto Get(Guid id)
+{
+    var book = _bookRepository.GetAsync(id).Result; // Deadlock risk!
+    return ObjectMapper.Map<Book, BookDto>(book);
+}
+```
 
 ## Time Handling
+
 Never use `DateTime.Now` or `DateTime.UtcNow` directly. Use ABP's `IClock` service:
 
 ```csharp
@@ -123,7 +200,7 @@ public class BookAppService : ApplicationService
     }
 }
 
-// In other services - inject IClock
+// In other services — inject IClock
 public class MyService : ITransientDependency
 {
     private readonly IClock _clock;
@@ -132,15 +209,14 @@ public class MyService : ITransientDependency
 
     public void DoSomething()
     {
-        var now = _clock.Now; // ✅ Correct
-        // var now = DateTime.Now; // ❌ Wrong - not testable, ignores timezone settings
+        var now = _clock.Now; // ✅ Correct — testable, respects timezone settings
+        // var now = DateTime.Now; // ❌ Wrong — not testable, ignores timezone
     }
 }
 ```
 
-> **Tip**: Before injecting a service, check if it's already available as a property in your base classes.
-
 ## Business Exceptions
+
 Use `BusinessException` for domain rule violations with namespaced error codes:
 
 ```csharp
@@ -148,7 +224,8 @@ throw new BusinessException("MyModule:BookNameAlreadyExists")
     .WithData("Name", bookName);
 ```
 
-Configure localization mapping:
+Configure localization mapping in module:
+
 ```csharp
 Configure<AbpExceptionLocalizationOptions>(options =>
 {
@@ -156,28 +233,102 @@ Configure<AbpExceptionLocalizationOptions>(options =>
 });
 ```
 
-## Localization
-- In base classes (`ApplicationService`, `AbpController`, etc.): Use `L["Key"]` - this is the `IStringLocalizer` property
-- In other services: Inject `IStringLocalizer<TResource>`
-- Always localize user-facing messages and exceptions
+Error code convention: `ModuleName:ErrorCode` (e.g., `Identity:UserNameAlreadyExists`, `BookStore:BookNameAlreadyExists`).
 
-**Localization file location**: `*.Domain.Shared/Localization/{ResourceName}/{lang}.json`
+## Localization
+
+### In Base Classes
+
+Use `L["Key"]` — the `IStringLocalizer` property available in `ApplicationService`, `AbpController`, `AbpPageModel`:
+
+```csharp
+public class BookAppService : ApplicationService
+{
+    public void Notify()
+    {
+        var message = L["BookCreated"]; // ✅ Localized string
+    }
+}
+```
+
+### In Other Services
+
+Inject `IStringLocalizer<TResource>`:
+
+```csharp
+public class MyService : ITransientDependency
+{
+    private readonly IStringLocalizer<BookStoreResource> _localizer;
+
+    public MyService(IStringLocalizer<BookStoreResource> localizer)
+    {
+        _localizer = localizer;
+    }
+}
+```
+
+### Localization File Location
+
+`*.Domain.Shared/Localization/{ResourceName}/{lang}.json`
 
 ```json
-// Example: MyProject.Domain.Shared/Localization/MyProject/en.json
+// Example: MyProject.Domain.Shared/Localization/BookStore/en.json
 {
   "culture": "en",
   "texts": {
     "Menu:Home": "Home",
     "Welcome": "Welcome",
-    "BookName": "Book Name"
+    "BookName": "Book Name",
+    "BookCreated": "Book created successfully"
   }
 }
 ```
 
-## ❌ Never Use (ABP Anti-Patterns)
+### Localization Resource Definition
 
-| Don't Use | Use Instead |
+```csharp
+public class BookStoreResource
+{
+}
+```
+
+Configure in module:
+
+```csharp
+Configure<AbpLocalizationOptions>(options =>
+{
+    options.Resources
+        .Add<BookStoreResource>("en")
+        .AddVirtualJson("/Localization/BookStore");
+});
+```
+
+## Anti-Patterns
+
+| Don't Use | Use Instead | Why |
+|-----------|-------------|-----|
+| `DateTime.Now` / `DateTime.UtcNow` | `IClock.Now` / `Clock.Now` | Testable, respects timezone settings |
+| `AddScoped<T>()` / `AddTransient<T>()` | `ITransientDependency` / `IScopedDependency` | Convention-based, cleaner |
+| `DbContext` injection in Application | `IRepository<T>` or custom repository | Proper layering, testability |
+| `.Result` / `.Wait()` on async calls | `await` all the way | Avoids deadlocks |
+| `async void` | `async Task` | Exception handling, caller awareness |
+| Hardcoded strings for user messages | `L["Key"]` / `IStringLocalizer<T>` | Localization support |
+| Generic error messages | `BusinessException` with error codes | Proper error handling, localizable |
+| Minimal APIs (for ABP apps) | ABP Controllers (`AbpController`) | Auto API, authorization, validation integration |
+| MediatR (for ABP apps) | Application Services | Built-in patterns, no extra library |
+
+## Best Practices Checklist
+
+- [ ] Use `IClock` instead of `DateTime`
+- [ ] Use marker interfaces for DI registration
+- [ ] Use `IRepository<T>` instead of `DbContext` in Application layer
+- [ ] Check base class properties before injecting services
+- [ ] All async methods end with `Async` suffix
+- [ ] Use `BusinessException` with namespaced error codes
+- [ ] All user-facing strings are localized
+- [ ] Module class uses `[DependsOn]` to declare dependencies
+- [ ] Middleware configured only in host application
+- [ ] Never use `.Result` or `.Wait()` on async operations
 |-----------|-------------|
 | Minimal APIs | ABP Controllers or Auto API Controllers |
 | MediatR | Application Services |

@@ -5,111 +5,183 @@ description: ABP project layer dependency rules - which projects can reference w
 
 # ABP Dependency Rules
 
+ABP enforces strict layer separation to maintain clean architecture. Violating these rules leads to tight coupling, untestable code, and broken modularity.
+
 ## Core Principles (All Templates)
 
 These principles apply regardless of solution structure:
 
-1. **Domain logic never depends on infrastructure** (no DbContext in domain/application)
-2. **Use abstractions** (interfaces) for dependencies
+1. **Domain logic never depends on infrastructure** — No DbContext in domain/application layers
+2. **Use abstractions** (interfaces) for dependencies — Depend on contracts, not implementations
 3. **Higher layers depend on lower layers**, never the reverse
 4. **Data access through repositories**, not direct DbContext
 
 ## Layered Template Structure
 
-> **Note**: This section applies to layered templates (app, module). Single-layer and microservice templates have different structures.
+> This section applies to layered templates (app, module). Single-layer and microservice templates have different structures.
+
+### Layer Diagram
 
 ```
-Domain.Shared    → Constants, enums, localization keys
-       ↑
-    Domain       → Entities, repository interfaces, domain services
-       ↑
-Application.Contracts → App service interfaces, DTOs
-       ↑
-  Application    → App service implementations
-       ↑
-   HttpApi       → REST controllers (optional)
-       ↑
-     Host        → Final application with DI and middleware
+┌─────────────────────────────────────────────┐
+│  Host (Web / API)                           │
+│  - DI wiring, middleware, startup            │
+│  - References: HttpApi, Application         │
+└─────────────────────────────────────────────┘
+                    │
+┌─────────────────────────────────────────────┐
+│  HttpApi                                    │
+│  - REST controllers                         │
+│  - References: Application.Contracts ONLY   │
+└─────────────────────────────────────────────┘
+                    │
+┌─────────────────────────────────────────────┐
+│  Application                                │
+│  - App service implementations              │
+│  - References: Domain, Application.Contracts│
+└─────────────────────────────────────────────┘
+                    │
+┌─────────────────────────────────────────────┐
+│  Application.Contracts                      │
+│  - App service interfaces, DTOs             │
+│  - References: Domain.Shared ONLY           │
+└─────────────────────────────────────────────┘
+                    │
+┌─────────────────────────────────────────────┐
+│  Domain                                     │
+│  - Entities, repository interfaces,         │
+│    domain services                          │
+│  - References: Domain.Shared ONLY           │
+└─────────────────────────────────────────────┘
+                    │
+┌─────────────────────────────────────────────┐
+│  Domain.Shared                              │
+│  - Constants, enums, localization keys      │
+│  - References: NOTHING                      │
+└─────────────────────────────────────────────┘
 ```
 
-### Layered Dependency Direction
+### Data Access Layers (EF Core / MongoDB)
+
+```
+┌─────────────────────────────────────────────┐
+│  EntityFrameworkCore / MongoDB              │
+│  - DbContext, repository implementations    │
+│  - References: Domain ONLY                  │
+└─────────────────────────────────────────────┘
+```
+
+### Dependency Direction Table
 
 | Project | Can Reference | Referenced By |
 |---------|---------------|---------------|
-| Domain.Shared | Nothing | All |
-| Domain | Domain.Shared | Application, Data layer |
-| Application.Contracts | Domain.Shared | Application, HttpApi, Clients |
-| Application | Domain, Contracts | Host |
-| EntityFrameworkCore/MongoDB | Domain | Host only |
-| HttpApi | Contracts only | Host |
+| `Domain.Shared` | Nothing | All projects |
+| `Domain` | Domain.Shared | Application, EF Core, MongoDB |
+| `Application.Contracts` | Domain.Shared | Application, HttpApi, HttpApi.Client |
+| `Application` | Domain, Application.Contracts | Host |
+| `EntityFrameworkCore` | Domain only | Host |
+| `MongoDB` | Domain only | Host |
+| `HttpApi` | Application.Contracts only | Host |
+| `HttpApi.Client` | Application.Contracts only | Clients, Gateways |
 
 ## Critical Rules
 
 ### ❌ Never Do
+
 ```csharp
-// Application layer accessing DbContext directly
+// 1. Application layer accessing DbContext directly
 public class BookAppService : ApplicationService
 {
-    private readonly MyDbContext _dbContext; // ❌ WRONG
+    private readonly MyDbContext _dbContext; // ❌ WRONG — use repository
 }
 
-// Domain depending on application layer
+// 2. Domain depending on application layer
 public class BookManager : DomainService
 {
-    private readonly IBookAppService _appService; // ❌ WRONG
+    private readonly IBookAppService _appService; // ❌ WRONG — circular dependency
 }
 
-// HttpApi depending on Application implementation
+// 3. HttpApi depending on Application implementation
 public class BookController : AbpController
 {
-    private readonly BookAppService _bookAppService; // ❌ WRONG - Use interface
+    private readonly BookAppService _bookAppService; // ❌ WRONG — use interface
 }
+
+// 4. Domain referencing EF Core / MongoDB
+// Domain project MUST NOT have package reference to:
+//   - Volo.Abp.EntityFrameworkCore
+//   - Volo.Abp.MongoDB
+//   - Microsoft.EntityFrameworkCore
+
+// 5. Application.Contracts referencing Domain
+// Application.Contracts MUST NOT reference Domain project
+// It can only reference Domain.Shared
 ```
 
 ### ✅ Always Do
+
 ```csharp
-// Application layer using repository abstraction
+// 1. Application layer using repository abstraction
 public class BookAppService : ApplicationService
 {
     private readonly IBookRepository _bookRepository; // ✅ CORRECT
 }
 
-// Domain service using domain abstractions
+// 2. Domain service using domain abstractions
 public class BookManager : DomainService
 {
     private readonly IBookRepository _bookRepository; // ✅ CORRECT
 }
 
-// HttpApi depending on contracts only
+// 3. HttpApi depending on contracts only
 public class BookController : AbpController
 {
-    private readonly IBookAppService _bookAppService; // ✅ CORRECT
+    private readonly IBookAppService _bookAppService; // ✅ CORRECT — interface from Contracts
 }
+
+// 4. Domain.Shared has zero dependencies
+// ✅ CORRECT — no project references at all
 ```
 
 ## Repository Pattern Enforcement
 
-### Interface Location
+### Interface Location (Domain Layer)
+
 ```csharp
-// In Domain project
+// In Domain project — only the abstraction
 public interface IBookRepository : IRepository<Book, Guid>
 {
     Task<Book> FindByNameAsync(string name);
 }
 ```
 
-### Implementation Location
+### Implementation Location (Data Layer)
+
 ```csharp
-// In EntityFrameworkCore project
+// In EntityFrameworkCore project — the EF Core implementation
 public class BookRepository : EfCoreRepository<MyDbContext, Book, Guid>, IBookRepository
 {
-    // Implementation
+    public BookRepository(IDbContextProvider<MyDbContext> dbContextProvider)
+        : base(dbContextProvider) { }
+
+    public async Task<Book> FindByNameAsync(string name)
+    {
+        var dbContext = await GetDbContextAsync();
+        return await dbContext.Books.FirstOrDefaultAsync(b => b.Name == name);
+    }
 }
 
-// In MongoDB project
-public class BookRepository : MongoDbRepository<MyDbContext, Book, Guid>, IBookRepository
+// In MongoDB project — the MongoDB implementation
+public class BookRepository : MongoDbRepository<MyMongoDbContext, Book, Guid>, IBookRepository
 {
-    // Implementation
+    public BookRepository(IMongoDbContextProvider<MyMongoDbContext> dbContextProvider)
+        : base(dbContextProvider) { }
+
+    public async Task<Book> FindByNameAsync(string name)
+    {
+        var queryable = await GetMongoQueryableAsync();
+        return await queryable.FirstOrDefaultAsync(b => b.Name == name);
+    }
 }
 ```
 
@@ -118,16 +190,46 @@ public class BookRepository : MongoDbRepository<MyDbContext, Book, Guid>, IBookR
 When you have multiple applications (e.g., Admin + Public API):
 
 ### Vertical Separation
+
 ```
-MyProject.Admin.Application      - Admin-specific services
-MyProject.Public.Application     - Public-specific services
-MyProject.Domain                 - Shared domain (both reference this)
+MyProject.Admin.Application      — Admin-specific services
+MyProject.Public.Application     — Public-specific services
+MyProject.Domain                 — Shared domain (both reference this)
+MyProject.Domain.Shared          — Shared constants/enums (all reference this)
 ```
 
-### Rules
+### Rules for Multi-Application
+
 - Admin and Public application layers **MUST NOT** reference each other
 - Share domain logic, not application logic
 - Each vertical can have its own DTOs even if similar
+- Each vertical has its own `Application.Contracts`
+
+## Common Violations
+
+| Violation | Why It Happens | How to Fix |
+|-----------|---------------|------------|
+| Injecting `DbContext` in Application | Developer wants direct query access | Create a repository method |
+| Domain referencing Application | Circular logic need | Extract to Domain Service |
+| HttpApi referencing Application | Convenience | Reference only `Application.Contracts` |
+| `Application.Contracts` referencing `Domain` | Need entity types in DTOs | Use DTOs, not entities; reference `Domain.Shared` only |
+| Business logic in Controller | Quick implementation | Move to Application Service |
+| Direct SQL in Application Service | Performance concern | Create repository method with raw SQL |
+
+## Enforcement Checklist
+
+- [ ] `Domain.Shared` has zero project references
+- [ ] `Domain` only references `Domain.Shared`
+- [ ] `Application.Contracts` only references `Domain.Shared`
+- [ ] `Application` only references `Domain` and `Application.Contracts`
+- [ ] `EntityFrameworkCore` only references `Domain`
+- [ ] `MongoDB` only references `Domain`
+- [ ] `HttpApi` only references `Application.Contracts`
+- [ ] `HttpApi.Client` only references `Application.Contracts`
+- [ ] No `DbContext` injected in Application layer
+- [ ] No domain logic in Controllers
+- [ ] Repository interfaces in Domain, implementations in data layer
+- [ ] No cross-references between sibling application modules
 
 ## Enforcement Checklist (Layered Templates)
 

@@ -25,6 +25,7 @@ Available Backend & DDD Skills:
 - **abp-core**: Core conventions, DI, Base classes, Exceptions
 - **abp-ddd**: Entities, Aggregate Roots, Repositories, Domain Services
 - **abp-dependency-rules**: Layer dependency rules, separation of concerns
+- **abp-application-layer**: DTOs, CRUD service, object mapping (Mapperly/AutoMapper), validation, error handling
 - **abp-development-flow**: Step-by-step development guide
 - **abp-ef-core**: DbContext, Mapping, Migrations
 - **abp-infrastructure**: Caching, Background Jobs, EventBus
