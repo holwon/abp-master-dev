@@ -25,14 +25,17 @@ Use graph tools when:
 
 ### Required Workflow
 1. **Check indexing**: Use `list_projects` and `index_status` to verify the current project is indexed. If not, run `index_repository` first.
-2. **Prefer graph tools**: Use `search_graph`, `trace_path`, `search_code`, `get_architecture`, `get_code_snippet`, and `detect_changes` before falling back to `grep_search` or manual file reads.
-3. **Fall back only when necessary**: Use grep/manual reads only when:
-   - The project is not yet indexed and indexing fails, OR
-   - The query is purely textual (e.g., finding a literal string in comments/logs, config values), OR
-   - The user explicitly asks for raw text search.
+2. **C# Semantic Search First**: If the user is asking for the definition, references, implementations, or symbol info of a specific C# class, method, or property (e.g., "Where is `MySqlOptions` defined?"), you MUST prioritize `roslyn-mcp` tools FIRST:
+   - Use `search_symbols` to find the exact symbol.
+   - Use `go_to_definition` or `get_symbol_info` to get its precise semantic AST definition.
+   - Use `find_references` or `find_implementations` for accurate call chains.
+3. **General Graph Search**: For general architecture exploration, finding files by name, or broad code analysis, use `codebase-memory-mcp` tools (`search_graph`, `trace_path`, `search_code`, `get_architecture`).
+4. **Fall back only when necessary**: Use grep, manual reads, or web search ONLY when:
+   - The symbol is completely external and `roslyn-mcp` cannot resolve it locally.
+   - The query is purely textual (e.g., finding a literal string in comments).
 
 ### Rationale
-Graph tools return precise structural results in ~500 tokens versus ~80K for grep, and they preserve relationships (calls, imports, HTTP/async edges) that grep cannot express.
+Graph tools (`codebase-memory-mcp`) return excellent structural results, while `roslyn-mcp` provides perfect compiler-level accuracy for C# symbols. Never fallback to plain text searches or GitHub web searches for C# types without exhausting `roslyn-mcp` first.
 
 ## Search Strategy
 
