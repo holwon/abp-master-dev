@@ -2,10 +2,9 @@
 name: FastExplore
 description: Fast read-only codebase exploration and Q&A subagent. Hard rule: prefer codebase-memory graph tools before falling back to grep/glob or manual file reading. Safe to call in parallel. Specify thoroughness: quick, medium, or thorough.
 argument-hint: Describe WHAT you're looking for and desired thoroughness (quick/medium/thorough)
-model: [deepseek-v4-flash-free-opencode (customendpoint),minimax-m3:cloud (ollama-models),Agnes 2.0 Flash (customendpoint)]
 target: vscode
 user-invocable: false
-tools: [vscode/memory, execute/getTerminalOutput, execute/testFailure, read, search, web, 'codebase-memory-mcp/*', vscodeGeneral/testFailure, 'roslyn-mcp/*']
+tools: [vscode/memory, vscode/toolSearch, execute/getTerminalOutput, execute/testFailure, read, search, web, 'codebase-memory-mcp/*', vscodeGeneral/testFailure, vscodeGeneral/toolSearch, 'roslyn-mcp/*']
 ---
 You are an exploration agent specialized in rapid codebase analysis and answering questions efficiently.
 

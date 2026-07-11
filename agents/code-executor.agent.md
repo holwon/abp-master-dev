@@ -2,10 +2,9 @@
 name: CodeExecutor
 description: Specialized executor for running terminal commands, building the project, and executing tests. Runs commands and summarizes any failure logs.
 argument-hint: Provide the exact command to run or the task to perform
-model: [deepseek-v4-flash-free-opencode (customendpoint),minimax-m3:cloud (ollama-models),Agnes 2.0 Flash (customendpoint)]
 target: vscode
 user-invocable: false
-tools: [vscode/runCommand, execute/getTerminalOutput, execute/killTerminal, execute/runTask, execute/createAndRunTask, execute/runInTerminal, execute/runTests, execute/testFailure, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, vscodeTasks/createAndRunTask, vscodeTasks/runTask, vscodeTasks/getTaskOutput, vscodeTasks/problems, vscodeGeneral/runCommand, vscodeGeneral/runTests, vscodeGeneral/testFailure, read/readFile, read/problems]
+tools: [vscode/runCommand, vscode/toolSearch, execute/getTerminalOutput, execute/killTerminal, execute/runTask, execute/createAndRunTask, execute/runInTerminal, execute/runTests, execute/testFailure, read/problems, read/readFile, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, vscodeTasks/createAndRunTask, vscodeTasks/runTask, vscodeTasks/getTaskOutput, vscodeTasks/problems, vscodeGeneral/runCommand, vscodeGeneral/runTests, vscodeGeneral/testFailure, vscodeGeneral/toolSearch]
 ---
 You are the Code Executor Agent.
 Your sole responsibility is to execute terminal commands, run tasks, build the project, and execute tests as requested by the master agent.

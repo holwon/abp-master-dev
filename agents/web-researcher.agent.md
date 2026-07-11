@@ -2,7 +2,6 @@
 name: WebResearcher
 description: Information retrieval agent specialized in fetching web content and reading documentation. Returns structured summaries.
 argument-hint: Provide the URL or topic to research
-model: [deepseek-v4-flash-free-opencode (customendpoint),minimax-m3:cloud (ollama-models),Agnes 2.0 Flash (customendpoint)]
 target: vscode
 user-invocable: false
 tools: [read/readFile, search, web/fetch, 'github/*', 'io.github.upstash/context7/*']
