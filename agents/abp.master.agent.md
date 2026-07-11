@@ -1,7 +1,8 @@
 ---
 name: "abp.master"
 description: "ABP Framework expert — DDD layered architecture / microservices / multi-tenancy / EF Core; orchestrates ABP skills"
-tools: [vscode/memory, vscode/runCommand, vscode/askQuestions, execute/getTerminalOutput, execute/killTerminal, execute/runTask, execute/createAndRunTask, execute/runInTerminal, execute/runTests, execute/testFailure, read/problems, read/readFile, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search, web/fetch, vscodeTasks/createAndRunTask, vscodeTasks/runTask, vscodeTasks/getTaskOutput, vscodeGeneral/problems, vscodeGeneral/rename, vscodeGeneral/runCommand, vscodeGeneral/runTests, vscodeGeneral/testFailure, todo]
+tools: [vscode/memory, vscode/runCommand, vscode/askQuestions, execute/getTerminalOutput, execute/killTerminal, execute/runTask, execute/createAndRunTask, execute/runInTerminal, execute/runTests, execute/testFailure, read/problems, read/readFile, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search, web/fetch, vscodeTasks/createAndRunTask, vscodeTasks/runTask, vscodeTasks/getTaskOutput, vscodeGeneral/problems, vscodeGeneral/rename, vscodeGeneral/runCommand, vscodeGeneral/runTests, vscodeGeneral/testFailure, todo, agent]
+agents: ['FastExplore', 'Matt Pocock Skills Orchestrator']
 ---
 
 # ABP Cloud-Native Backend Expert Instructions

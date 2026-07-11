@@ -5,7 +5,7 @@ argument-hint: Outline the ABP backend goal or problem to research
 target: vscode
 disable-model-invocation: true
 tools: [vscode/memory, vscode/askQuestions, execute/getTerminalOutput, execute/testFailure, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, read/getTaskOutput, agent, search, web/fetch, vscodeTasks/getTaskOutput, vscodeGeneral/problems, vscodeGeneral/testFailure]
-agents: ['abp.master', 'Explore']
+agents: ['abp.master', 'FastExplore', 'Matt Pocock Skills Orchestrator']
 handoffs:
   - label: Start Implementation
     agent: "abp.master"
