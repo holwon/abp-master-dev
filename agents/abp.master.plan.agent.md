@@ -5,7 +5,7 @@ argument-hint: Outline the ABP backend goal or problem to research
 target: vscode
 disable-model-invocation: true
 tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, todo]
-agents: ['abp.master', 'FastExplore', 'WebResearcher']
+agents: ['abp.master', 'FastExplore', 'WebResearcher', 'TestRunner', 'GitOps']
 handoffs:
   - label: Start Implementation
     agent: "abp.master"
@@ -40,6 +40,10 @@ Cycle through these phases based on user input. This is iterative, not linear. I
 Gather context regarding the requested domain. Ensure you look up relevant **official ABP skills** (e.g., `abp-ddd`, `abp-ef-core`, `abp-infrastructure`) using your read tools. If you need to read external web documentation, you MUST use the `WebResearcher` agent to prevent context bloat.
 
 Find analogous existing features to use as implementation templates, and identify potential blockers. You MUST launch the `FastExplore` subagent to search the codebase, trace call chains, and find C# symbol definitions. Do not use your own local search tools. Update the plan with your findings from `FastExplore`.
+
+If you need to verify the existing behavior by running unit tests, you may launch the `TestRunner` subagent. It operates in a strict read-only sandbox, allowing you to safely execute `dotnet test` without risking unintended codebase modifications.
+
+If you need context from Github/Gitlab issues, pull requests, or version history, you may launch the `GitOps` subagent. It provides read-only access to Git history and Issue details, allowing you to incorporate exact requirements from the issue tracker into your plan.
 
 ## 2. Alignment
 

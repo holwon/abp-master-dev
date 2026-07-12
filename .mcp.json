@@ -3,10 +3,6 @@
 		"codebase-memory-mcp": {
 			"type": "stdio",
 			"command": "codebase-memory-mcp.exe"
-		},
-		"roslyn-mcp": {
-			"type": "stdio",
-			"command": "roslyn-mcp"
 		}
 	}
 }
