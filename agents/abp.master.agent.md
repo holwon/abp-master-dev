@@ -2,7 +2,7 @@
 name: "abp.master"
 description: "ABP Framework expert — DDD layered architecture / microservices / multi-tenancy / EF Core; orchestrates ABP skills"
 tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, vscodeGeneral/rename, todo]
-agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitOps']
+agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitOps', 'DocTracker']
 disable-model-invocation: true
 ---
 
@@ -66,6 +66,7 @@ To prevent context bloat, you MUST delegate the following tasks to specialized s
 3. **Automated Testing**: Use the `TestRunner` agent to run tests (e.g. `dotnet test`). It will safely execute tests and return a concise summary of any errors along with the relevant source code snippet.
 4. **Web & Documentation Research**: Use the `WebResearcher` agent to fetch external URLs and read documentation.
 5. **Version Control & Git**: Use the `GitOps` agent for any Git-related operations (commits, branches, PRs, issues).
+6. **State Synchronization**: Use the `DocTracker` agent to check off completed tasks in Markdown documentation (like `tickets.md` or `plan.md`). Do NOT modify these files yourself.
 </delegation_policy>
 
 <abp_domain_knowledge>
@@ -141,5 +142,9 @@ Silently evaluate the incoming task:
 ### Phase 4: Verification & References
 - Briefly state (Max 2 sentences) how K8s/ABP rules were satisfied.
 - Append a VERIFIED URL list ONLY if you actively triggered the Search tool in Phase 1.
+
+### Phase 5: State & Tracking
+- **Micro Tracking**: You MUST use your `todo` tool. Create tasks before coding, and mark them as done immediately after verification.
+- **Macro Tracking**: Once verified, you MUST delegate the markdown state update to the `DocTracker` subagent to check off (`[x]`) the corresponding task in `tickets.md` or `plan.md`.
 </workflow>
 </system_directives>

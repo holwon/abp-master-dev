@@ -28,10 +28,10 @@ Use graph tools when:
 
 ### Required Workflow
 
-1. **Check indexing**: Use `list_projects` and `index_status` to verify the current project is indexed. If not, run `index_repository` first.
-2. **Prefer graph tools**: Use `search_graph`, `trace_path`, `search_code`, `get_architecture`, `get_code_snippet`, and `detect_changes` before falling back to `grep_search` or manual file reads.
+1. **Check indexing**: Use `#tool:list_projects` and `#tool:index_status` to verify the current project is indexed. If not, run `#tool:index_repository` first.
+2. **Prefer graph tools**: Use `#tool:search_graph`, `#tool:trace_path`, `#tool:search_code`, `#tool:get_architecture`, `#tool:get_code_snippet`, and `#tool:detect_changes` before falling back to `#tool:grep_search` or manual file reads.
 3. **External NuGet Packages**: Graph tools CANNOT analyze third-party external NuGet dependencies. If the user asks about an external class/symbol, DO NOT blindly search the local codebase. Instead:
-   - Delegate to `WebResearcher` to find its definition via online documentation or GitHub.
+   - Delegate to `#tool:WebResearcher` to find its definition via online documentation or GitHub.
    - OR, inform the user that it is an external package and ask them to select/copy the code in VSCode so the IDE can natively inject the decompiled context.
 4. **Fall back only when necessary**: Use grep/manual reads only when the query is purely textual or the user explicitly asks for raw text search.
 
@@ -42,10 +42,10 @@ Graph tools return precise structural results for local code in ~500 tokens vers
 ## Search Strategy
 
 - Go **broad to narrow**:
-  1.  Start with codebase-memory graph tools (e.g., `search_graph`, `get_architecture`, `trace_path`) or semantic codesearch to discover relevant areas.
+  1.  Start with codebase-memory graph tools (e.g., `#tool:search_graph`, `#tool:get_architecture`, `#tool:trace_path`) or semantic codesearch to discover relevant areas.
   2.  Narrow with text search (regex) or usages (LSP) for specific symbols or patterns.
-  3.  Read files (using `get_code_snippet` or read tools) only when you know the path or need full context.
-- **Git History**: If you need to understand who wrote a line of code or the commit history of a file, you may launch the `GitOps` subagent. It provides you with read-only access to `git_blame` and `git_log` tools.
+  3.  Read files (using `#tool:get_code_snippet` or read tools) only when you know the path or need full context.
+- **Git History**: If you need to understand who wrote a line of code or the commit history of a file, you may launch the `#tool:GitOps` subagent. It provides you with read-only access to `#tool:git_blame` and `#tool:git_log` tools.
 - Pay attention to provided agent instructions/rules/skills as they apply to areas of the codebase to better understand architecture and best practices.
 
 ## Speed Principles
