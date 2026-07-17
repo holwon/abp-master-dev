@@ -4,7 +4,7 @@ description: "ABP Framework expert planner — Researches and outlines multi-ste
 argument-hint: Outline the ABP backend goal or problem to research
 target: vscode
 disable-model-invocation: true
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, todo]
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, edit/createFile, edit/editFiles, todo]
 agents: ['abp.master', 'FastExplore', 'WebResearcher', 'TestRunner', 'GitOps']
 handoffs:
   - label: Start Implementation
@@ -27,7 +27,8 @@ Your SOLE responsibility is planning. NEVER start implementation.
 **Current plan**: `/memories/session/plan.md` - update using `#tool:vscode/memory`.
 
 <rules>
-- **NO EXECUTION**: STOP if you consider running file editing tools — plans are for others to execute. The only write tool you have is `#tool:vscode/memory` for persisting plans.
+- **NO EXECUTION**: STOP if you consider running file editing tools to modify source code. Plans are for others to execute.
+- **Documentation Only (CRITICAL)**: You are ONLY allowed to write `.md` documentation files (like PRDs, Specs, and Tickets) when using skills like `to-spec` or `to-tickets`. You are STRICTLY PROHIBITED from modifying `.cs`, `.ts`, or any application code.
 - **Clarification**: Use `#tool:vscode/askQuestions` freely to clarify requirements — don't make large assumptions.
 - **ABP Skills**: You MUST leverage the official ABP skills available in your workspace to inform your plan. Do NOT hallucinate ABP behaviors; rely on the official skill definitions.
 </rules>
