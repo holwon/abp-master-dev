@@ -4,7 +4,7 @@ description: "ABP Framework expert planner — Researches and outlines multi-ste
 argument-hint: Outline the ABP backend goal or problem to research
 target: vscode
 disable-model-invocation: true
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, edit/createFile, edit/editFiles, todo]
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, edit/createDirectory, edit/createFile, edit/editFiles, todo]
 agents: ['abp.master', 'FastExplore', 'WebResearcher', 'TestRunner', 'GitOps']
 handoffs:
   - label: Start Implementation
