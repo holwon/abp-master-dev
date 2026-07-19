@@ -1,0 +1,3 @@
+[submodule "shared-copilot-agents-dev"]
+	path = shared-copilot-agents-dev
+	url = https://github.com/holwon/shared-copilot-agents-dev.git
