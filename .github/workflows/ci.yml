@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ '**' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (with submodules)
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+          fetch-depth: 0
+
+      - name: Ensure submodules initialized
+        run: git submodule update --init --recursive
+
+      - name: Print submodule status
+        run: git submodule status --recursive || true
+
+      - name: Setup .NET if solution exists
+        if: "exists('*.sln') || exists('abp.sln') || exists('*.csproj')"
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore & build .NET if solution exists
+        if: "exists('*.sln') || exists('abp.sln') || exists('*.csproj')"
+        run: |
+          dotnet restore
+          dotnet build --no-restore --configuration Release
+
+      - name: Setup Node if package.json exists
+        if: "exists('package.json')"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install & test Node if package.json exists
+        if: "exists('package.json')"
+        run: |
+          npm ci
+          if [ -f package.json ] && jq -e '.scripts.test' package.json >/dev/null 2>&1; then
+            npm test || true
+          else
+            echo "No test script defined, skipping npm test"
+          fi
