@@ -5,7 +5,7 @@ argument-hint: Outline the ABP backend goal or problem to research
 target: vscode
 disable-model-invocation: true
 tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, todo]
-agents: ['abp.master', 'FastExplore', 'WebResearcher', 'TestRunner', 'GitOps', 'DocWriter']
+agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitOps', 'DocWriter']
 handoffs:
   - label: Start Implementation
     agent: "abp.master"
