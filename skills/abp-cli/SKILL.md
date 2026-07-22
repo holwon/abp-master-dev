@@ -1,6 +1,7 @@
 ---
 name: abp-cli
 description: ABP CLI commands - generate-proxy, install-libs, add-package-ref, new-module, install-module, abp update, abp clean, abp suite generate. Use when the user asks how to run ABP CLI commands, generate proxies, install libraries, or use ABP Suite.
+user-invocable: false
 ---
 
 # ABP CLI Commands

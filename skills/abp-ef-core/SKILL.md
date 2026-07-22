@@ -1,6 +1,7 @@
 ---
 name: abp-ef-core
 description: ABP Entity Framework Core - DbContext, entity configuration, EfCoreRepository implementation, migrations (dotnet ef migrations add), data seeding. Use when working in EntityFrameworkCore projects, adding migrations, or implementing EF Core repositories.
+user-invocable: false
 ---
 
 # ABP Entity Framework Core

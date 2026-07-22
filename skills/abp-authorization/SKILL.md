@@ -1,6 +1,7 @@
 ---
 name: abp-authorization
 description: ABP permission system - PermissionDefinitionProvider, [Authorize] attribute, CheckPolicyAsync, IsGrantedAsync, ICurrentUser, IPermissionManager, multi-tenancy side. Use when working with permissions, authorization, role-based access, or security in ABP projects.
+user-invocable: false
 ---
 
 # ABP Authorization

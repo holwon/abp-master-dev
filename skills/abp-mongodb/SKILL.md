@@ -1,6 +1,7 @@
 ---
 name: abp-mongodb
 description: ABP MongoDB patterns - AbpMongoDbContext, IMongoCollection, MongoDbRepository, no migrations, embedded documents vs references, manual UpdateAsync required. Use when working in MongoDB projects or implementing MongoDB repositories in ABP.
+user-invocable: false
 ---
 
 # ABP MongoDB

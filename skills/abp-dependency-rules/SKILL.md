@@ -1,6 +1,7 @@
 ---
 name: abp-dependency-rules
 description: ABP project layer dependency rules - which projects can reference which, domain/application/infrastructure separation, cross-layer violations to avoid. Use when reviewing project structure, adding new project references, or checking if a dependency direction is correct.
+user-invocable: false
 ---
 
 # ABP Dependency Rules

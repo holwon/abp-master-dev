@@ -1,6 +1,7 @@
 ---
 name: abp-ddd
 description: ABP DDD patterns - Entities, Aggregate Roots, value objects, Repositories, Domain Services, Domain Events, Specifications. Use when designing domain layer, creating entities, repositories, or domain services in ABP projects.
+user-invocable: false
 ---
 
 # ABP Domain-Driven Design (DDD)
