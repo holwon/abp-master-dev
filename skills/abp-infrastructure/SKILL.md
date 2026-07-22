@@ -1,6 +1,7 @@
 ---
 name: abp-infrastructure
 description: ABP infrastructure services - ISettingProvider, IFeatureChecker, IDistributedCache, ILocalEventBus, IDistributedEventBus, IBackgroundJobManager, localization resource. Use when working with settings, feature flags, caching, event bus, or background jobs in ABP.
+user-invocable: false
 ---
 
 # ABP Infrastructure Services

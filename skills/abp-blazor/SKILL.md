@@ -1,6 +1,7 @@
 ---
 name: abp-blazor
 description: ABP Blazor UI patterns - AbpComponentBase, AbpCrudPageBase, DataGrid, IMenuContributor, Message/Notify, Validations, JavaScript interop. Use when building or reviewing Blazor Server or WebAssembly UI components in ABP projects.
+user-invocable: false
 ---
 
 # ABP Blazor UI

@@ -1,6 +1,7 @@
 ---
 name: abp-application-layer
 description: ABP Application Services, DTOs, CRUD service, object mapping (Mapperly/AutoMapper), validation, error handling. Use when creating or reviewing application services, DTOs, or working in the Application or Application.Contracts projects.
+user-invocable: false
 ---
 
 # ABP Application Layer

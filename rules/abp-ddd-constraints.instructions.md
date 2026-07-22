@@ -1,16 +1,17 @@
 ---
 name: ABP DDD & Architectural Constraints
-description: DDD encapsulation, entity modeling, and forbidden code patterns in ABP Framework
+description: Hard rules for DDD encapsulation, entity modeling, and forbidden code patterns in ABP Framework
 applyTo: "**/*.cs"
 ---
 
 # ABP DDD & Architectural Constraints
 
-1. **Avoid Property Duplication**: DO NOT declare properties (like `Id`, `IsDeleted`, `CreationTime`, or `ConcurrencyStamp`) that are already provided by inherited ABP base classes (`AggregateRoot<TKey>`, `FullAuditedAggregateRoot<TKey>`, `Entity<TKey>`, etc.).
-2. **Encapsulation**: Custom `AggregateRoot` and `Entity` properties MUST ALWAYS use `protected set` or `private set`. NEVER use `public set`.
-3. **Aggregate Boundaries**: Sub-entities (`Entity`) MUST restrict direct instantiation from outside the aggregate (use `internal` constructors).
-4. **State Mutation**: Entity state must only be modified via constructors or dedicated domain methods.
-5. **Forbidden Patterns**:
-   - NEVER use AutoMapper or Mapster inside Domain Layers; use manual object mapping or dedicated domain mappers.
-   - NEVER execute async database/network calls inside `for`/`foreach` loops. MUST use `Task.WhenAll` or batch query APIs.
-   - NEVER put business logic in API Controllers or DbContext. Controllers strictly delegate to Application Services or Mediator handlers.
+Hard rules — enforced every time you write or review C# code.
+
+1. **MUST use `protected set` or `private set` on AggregateRoot/Entity properties**. NEVER use `public set`.
+2. **NEVER use AutoMapper/Mapster inside Domain Layer**. Manual mapping only.
+3. **NEVER execute async DB/network calls inside `for`/`foreach` loops**. MUST use `Task.WhenAll` or batch query APIs.
+4. **NEVER put business logic in API Controllers or DbContext**. MUST delegate to Application Services.
+5. **Sub-entities MUST use `internal` constructors**. No direct instantiation from outside the aggregate.
+
+> For complete DDD patterns, code examples, and best practices, see the `abp-ddd` skill (`skills/abp-ddd/SKILL.md`).
