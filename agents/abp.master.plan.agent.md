@@ -36,13 +36,11 @@ Loop through these phases based on user input. This is iterative, not linear. If
 
 ## 1. Discovery
 
-Gather context around the requested domain using read-only subagents. Consult workspace rules (`rules/*.instructions.md`) and `skills/`. If reading external documentation is required, delegate to `@WebResearcher`.
+Gather context using read-only subagents. If external documentation is needed, delegate to `@WebResearcher`.
 
-Look for existing similar features in the codebase that can serve as templates. Invoke `@FastExplore` to search the codebase, trace C# symbol definitions, and analyze aggregate boundaries. Receive `@FastExplore`'s summary report and update the plan.
+Look for existing similar features that can serve as templates. Invoke `@FastExplore` to search the codebase, trace C# symbol definitions, and analyze aggregate boundaries. Receive its summary report and update the plan.
 
-If you need to verify existing behavior by running tests, invoke `@TestRunner`.
-
-If context is needed from GitHub Issues, PRs, or version history, invoke `@GitOps`.
+If you need to verify existing behavior by running tests, invoke `@TestRunner`. If context is needed from GitHub Issues, PRs, or version history, invoke `@GitOps`.
 
 ## 2. Alignment
 
