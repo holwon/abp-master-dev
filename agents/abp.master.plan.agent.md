@@ -5,7 +5,7 @@ argument-hint: Describe the C# / ABP backend goal or problem to plan
 target: vscode
 disable-model-invocation: true
 tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, browser, vscodeTasks/problems, todo]
-agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitOps', 'DocTracker']
+agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitOps', 'DocTracker', 'DocWriter']
 handoffs:
   - label: Start Implementation
     agent: "abp.master"
