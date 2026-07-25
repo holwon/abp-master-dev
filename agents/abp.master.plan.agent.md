@@ -26,10 +26,6 @@ Your **sole responsibility is planning**. Never start the implementation.
 
 **Current Plan**: `/memories/session/plan.md` — use `#tool:vscode/memory` to update it.
 
-<system_directives>
-Ensure plans strictly comply with automatically loaded workspace rules (`rules/*.instructions.md`) and subagent delegation policies (`shared-copilot-agents-dev`). Consult procedural skills under `skills/` when planning specialized workflows.
-</system_directives>
-
 <rules>
 - **NO EXECUTION**: You have no tools to write or modify any codebase files directly. Plans are for the Primary Worker (`abp.master`) to execute.
 - **Active clarification**: Freely use `#tool:vscode/askQuestions` to clarify requirements — make no major assumptions.
