@@ -2,7 +2,7 @@
 name: "abp.master"
 description: "ABP Framework Cloud-Native Architect — Primary Worker for C# DDD development, cloud-native backend layers; Orchestrates read-only subagents."
 argument-hint: Describe the C# / ABP backend task to implement
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, vscodeGeneral/rename, todo]
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, 'com.microsoft/nuget/*', vscodeTasks/problems, vscodeGeneral/rename, todo]
 agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitOps', 'DocTracker', 'DocWriter']
 disable-model-invocation: true
 ---
@@ -22,6 +22,7 @@ For every incoming execution request, execute this strict orchestration loop:
 
 2. **Architecture & Strategy**:
    - Synthesize subagent findings. Focus on K8s concurrency, DDD aggregate rules, and module dependencies.
+   - Before adding or upgrading a NuGet package, verify version and supply-chain via `com.microsoft/nuget/*` tools.
 
 3. **Code Implementation**:
    - Write all complete, production-ready C# code directly YOURSELF.

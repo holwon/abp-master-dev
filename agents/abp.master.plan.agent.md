@@ -4,7 +4,7 @@ description: "ABP Framework Cloud-Native Planning Expert — Researches and outl
 argument-hint: Describe the C# / ABP backend goal or problem to plan
 target: vscode
 disable-model-invocation: true
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, browser, vscodeTasks/problems, todo]
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, browser, com.microsoft/nuget/get_latest_package_version, com.microsoft/nuget/get_package_context, com.microsoft/nuget/review_supply_chain_security, vscodeTasks/problems, todo]
 agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitOps', 'DocTracker', 'DocWriter']
 handoffs:
   - label: Start Implementation
@@ -37,6 +37,8 @@ Loop through these phases based on user input. This is iterative, not linear. If
 ## 1. Discovery
 
 Gather context using read-only subagents. If external documentation is needed, delegate to `@WebResearcher`.
+
+For NuGet package versions, API context, or supply-chain checks, query the `com.microsoft/nuget/*` tools directly — faster and structured, prefer over web search.
 
 Look for existing similar features that can serve as templates. Invoke `@FastExplore` to search the codebase, trace C# symbol definitions, and analyze aggregate boundaries. Receive its summary report and update the plan.
 
