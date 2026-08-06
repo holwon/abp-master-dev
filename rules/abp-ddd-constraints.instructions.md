@@ -1,6 +1,6 @@
 ---
 name: ABP DDD & Architectural Constraints
-description: Hard rules for DDD encapsulation, entity modeling, and forbidden code patterns in ABP Framework
+description: "Hard rules for DDD encapsulation, entity modeling, and forbidden code patterns in ABP Framework. Use when writing or reviewing ABP domain, entity, or aggregate code."
 applyTo: "**/*.cs"
 ---
 

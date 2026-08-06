@@ -22,6 +22,6 @@ Hard rules — enforced every time a class, interface, or DTO is created or rena
 8. **Enums**: plain concept name. E.g. `BookType`, `OrderStatus` — no `Enum` suffix.
 9. **Constants & error codes**: use ABP pattern `{Entity}ErrorCodes` static class with PascalCase members, e.g. `OrderErrorCodes.CannotCancelCompletedOrder`.
 10. **FORBIDDEN**:
-    - Suffix collisions: never mix suffixes (`BookAppService` + `BookManager` for the same aggregate in the same layer is a smell — pick one per concern).
+    - Suffix collisions: one suffix per aggregate per layer. `BookManager` (Domain) and `BookAppService` (Application) coexist by design; the smell is a second suffix for the same aggregate in the same layer (e.g. `BookManager` + `BookDomainService` both in Domain) — pick the one that names the layer's concern.
     - Generic names (`Manager`, `Service`, `Helper`, `Data`) without an entity prefix.
     - Abbreviations or acronyms for entity names (e.g. `Bk`, `Ord`) — always the full domain term.
