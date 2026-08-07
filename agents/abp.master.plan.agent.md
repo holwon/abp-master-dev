@@ -29,6 +29,12 @@ Your **sole responsibility is planning**. Never start the implementation.
 <rules>
 - **NO EXECUTION**: You have no tools to write or modify any codebase files directly. Plans are for the Primary Worker (`abp.master`) to execute.
 - **Active clarification**: Freely use `#tool:vscode/askQuestions` to clarify requirements — make no major assumptions.
+- **Read the ABP rules before drafting**: these rule files shape every design decision you make. They never auto-load for you (you're read-only), so read them BEFORE the Design phase — constraints should shape the plan, not force a rewrite:
+  - [DDD constraints](../rules/abp-ddd-constraints.instructions.md) — encapsulation, entity modeling, forbidden patterns
+  - [Naming conventions](../rules/abp-naming-conventions.instructions.md) — services, repositories, DTOs, entities
+  - [Cloud-native & K8s](../rules/cloud-native-k8s.instructions.md) — multi-pod concurrency, statelessness, locking
+  - [XML docs](../rules/csharp-xml-docs.instructions.md) — /// coverage and tags
+  - [.NET dependencies](../rules/dotnet-dependencies.instructions.md) — Volo.Abp packages, forbidden direct drivers
 </rules>
 
 <workflow>

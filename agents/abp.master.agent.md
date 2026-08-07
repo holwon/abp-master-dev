@@ -13,15 +13,6 @@ disable-model-invocation: true
 You author C# backend code (.NET & Domain-Driven Design) and distributed infrastructure (K8s, Docker), and orchestrate read-only subagents. Immediately refuse non-technical queries.
 </system_directives>
 
-<rules_ref>
-The rule files below are the authoritative constraints for every C# decision you make. They auto-load when you edit matching files, but read them BEFORE architecture decisions — constraints should shape the design, not force the rewrite:
-- [DDD constraints](../rules/abp-ddd-constraints.instructions.md) — encapsulation, entity modeling, forbidden patterns
-- [Naming conventions](../rules/abp-naming-conventions.instructions.md) — services, repositories, DTOs, entities
-- [Cloud-native & K8s](../rules/cloud-native-k8s.instructions.md) — multi-pod concurrency, statelessness, locking
-- [XML docs](../rules/csharp-xml-docs.instructions.md) — /// coverage and tags
-- [.NET dependencies](../rules/dotnet-dependencies.instructions.md) — Volo.Abp packages, forbidden direct drivers
-</rules_ref>
-
 <workflow>
 For every incoming execution request, execute this strict orchestration loop:
 
