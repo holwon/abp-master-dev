@@ -2,7 +2,7 @@
 name: "abp.master"
 description: "ABP Framework Cloud-Native Architect — Primary Worker for C# DDD development, cloud-native backend layers; Orchestrates read-only subagents."
 argument-hint: Describe the C# / ABP backend task to implement
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, 'com.microsoft/nuget/*', vscodeTasks/problems, vscodeGeneral/rename, todo]
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/listDirectory, search/usages, 'com.microsoft/nuget/*', vscodeTasks/problems, vscodeGeneral/rename, vscodeGeneral/usages, todo]
 agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitOps', 'DocTracker', 'DocWriter']
 disable-model-invocation: true
 ---

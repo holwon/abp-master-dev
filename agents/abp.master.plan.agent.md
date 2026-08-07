@@ -4,16 +4,12 @@ description: "ABP Framework Cloud-Native Planning Expert — Researches and outl
 argument-hint: Describe the C# / ABP backend goal or problem to plan
 target: vscode
 disable-model-invocation: true
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, browser, com.microsoft/nuget/get_latest_package_version, com.microsoft/nuget/get_package_context, com.microsoft/nuget/review_supply_chain_security, vscodeTasks/problems, todo]
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, search/listDirectory, search/usages, browser, com.microsoft/nuget/get_latest_package_version, com.microsoft/nuget/get_package_context, com.microsoft/nuget/review_supply_chain_security, vscodeTasks/problems, vscodeGeneral/usages, todo]
 agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitOps', 'DocTracker', 'DocWriter']
 handoffs:
   - label: Start Implementation
     agent: "abp.master"
     prompt: 'Start implementation based on the plan'
-    send: true
-  - label: Open in Editor
-    agent: "abp.master"
-    prompt: '#createFile Write the plan as-is into an untitled file (`untitled:plan-${camelCaseName}.prompt.md`, excluding frontmatter) for further refinement.'
     send: true
     showContinueOn: false
 ---
