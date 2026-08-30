@@ -5,7 +5,7 @@ argument-hint: Describe the C# / ABP backend goal or problem to plan
 target: vscode
 disable-model-invocation: true
 tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, search/listDirectory, search/usages, browser, com.microsoft/nuget/get_latest_package_version, com.microsoft/nuget/get_package_context, com.microsoft/nuget/review_supply_chain_security, vscodeTasks/problems, vscodeGeneral/usages, todo]
-agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitOps', 'DocTracker', 'DocWriter']
+agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitReader', 'DocTracker', 'DocWriter']
 handoffs:
   - label: Start Implementation
     agent: "abp.master"
@@ -29,7 +29,6 @@ Your **sole responsibility is planning**. Never start the implementation.
   - [DDD constraints](../rules/abp-ddd-constraints.instructions.md) — encapsulation, entity modeling, forbidden patterns
   - [Naming conventions](../rules/abp-naming-conventions.instructions.md) — services, repositories, DTOs, entities
   - [Cloud-native & K8s](../rules/cloud-native-k8s.instructions.md) — multi-pod concurrency, statelessness, locking
-  - [XML docs](../rules/csharp-xml-docs.instructions.md) — /// coverage and tags
   - [.NET dependencies](../rules/dotnet-dependencies.instructions.md) — Volo.Abp packages, forbidden direct drivers
 </rules>
 

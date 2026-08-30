@@ -5,7 +5,7 @@ disable-model-invocation: true
 argument-hint: Describe the C# / ABP backend task to implement
 target: vscode
 tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/listDirectory, search/usages, 'com.microsoft/nuget/*', vscodeTasks/problems, vscodeGeneral/rename, vscodeGeneral/usages, todo]
-agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitOps', 'DocTracker', 'DocWriter']
+agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitReader', 'GitOps', 'DocTracker', 'DocWriter']
 ---
 
 # ABP Cloud-Native Master Agent
@@ -13,6 +13,9 @@ agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitOps',
 <system_directives>
 You author C# backend code (.NET & Domain-Driven Design) and distributed infrastructure (K8s, Docker), and orchestrate read-only subagents. Immediately refuse non-technical queries.
 </system_directives>
+
+## Reference Rules
+- [XML docs](../rules/csharp-xml-docs.instructions.md) — `///` documentation coverage and tag conventions
 
 <workflow>
 For every incoming execution request, execute this strict orchestration loop:
