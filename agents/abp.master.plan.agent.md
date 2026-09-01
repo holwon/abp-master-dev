@@ -4,8 +4,8 @@ description: "ABP Framework Cloud-Native Planning Expert — Researches and outl
 argument-hint: Describe the C# / ABP backend goal or problem to plan
 target: vscode
 disable-model-invocation: true
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, search/listDirectory, search/usages, browser, com.microsoft/nuget/get_latest_package_version, com.microsoft/nuget/get_package_context, com.microsoft/nuget/review_supply_chain_security, vscodeTasks/problems, vscodeGeneral/usages, todo]
-agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitReader', 'DocTracker', 'DocWriter']
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, edit/createFile, edit/editFiles, search/fileSearch, search/listDirectory, search/textSearch, search/usages, com.microsoft/nuget/get_latest_package_version, com.microsoft/nuget/get_package_context, com.microsoft/nuget/review_supply_chain_security, vscodeTasks/problems, vscodeGeneral/usages, todo]
+agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitReader', 'GitOps', 'DocTracker', 'DocWriter']
 handoffs:
   - label: Start Implementation
     agent: "abp.master"
