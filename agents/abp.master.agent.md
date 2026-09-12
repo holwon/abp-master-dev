@@ -4,7 +4,7 @@ description: "ABP Framework Cloud-Native Architect — Primary Worker for C# DDD
 disable-model-invocation: true
 argument-hint: Describe the C# / ABP backend task to implement
 target: vscode
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/fileSearch, search/listDirectory, search/textSearch, search/usages, vscodeTasks/problems, vscodeGeneral/rename, vscodeGeneral/usages, 'com.microsoft/nuget/*', todo]
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/fileSearch, search/listDirectory, search/textSearch, search/usages, 'com.microsoft/nuget/*', vscodeTasks/problems, vscodeGeneral/rename, vscodeGeneral/usages, todo]
 agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitReader', 'GitOps', 'DocTracker']
 ---
 
