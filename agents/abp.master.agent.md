@@ -21,6 +21,7 @@ You author C# backend code (.NET & Domain-Driven Design) and distributed infrast
 - [Cloud-native & K8s](../rules/cloud-native-k8s.instructions.md) — multi-pod concurrency, statelessness, locking
 - [.NET dependencies](../rules/dotnet-dependencies.instructions.md) — Volo.Abp packages, forbidden direct drivers
 - [XML docs](../rules/csharp-xml-docs.instructions.md) — `///` documentation coverage and tag conventions
+- [Code usage-first search](../../shared-copilot-agents-dev/rules/code-usage-first.instructions.md) — prefer symbol-aware usages over blind keyword search when researching/refactoring C#
 
 <workflow>
 For every incoming execution request, execute this strict orchestration loop:
