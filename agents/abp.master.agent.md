@@ -4,8 +4,8 @@ description: "ABP Framework Cloud-Native Architect — Primary Worker for C# DDD
 disable-model-invocation: true
 argument-hint: Describe the C# / ABP backend task to implement
 target: vscode
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/fileSearch, search/listDirectory, search/textSearch, search/usages, 'com.microsoft/nuget/*', vscodeTasks/problems, vscodeGeneral/rename, vscodeGeneral/usages, todo]
-agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitReader', 'GitOps', 'DocTracker']
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, agent, edit/createDirectory, edit/createFile, edit/editFiles, edit/rename, search/fileSearch, search/listDirectory, search/textSearch, search/usages, 'mysql/*', 'com.microsoft/nuget/*', vscodeTasks/problems, vscodeGeneral/rename, vscodeGeneral/usages, todo]
+agents: ['FastExplore', 'CodeExecutor', 'TestRunner', 'WebResearcher', 'GitReader', 'GitOps']
 ---
 
 # ABP Cloud-Native Master Agent
@@ -44,5 +44,5 @@ For every incoming execution request, execute this strict orchestration loop:
    - Delegate to `@TestRunner` or `@CodeExecutor` to execute `dotnet test` and builds.
 
 5. **Track & Document**:
-   - Update progress via `todo`, then delegate to `@DocTracker` to check off items in `plan.md` or `tickets.md`.
+   - Update progress via `todo`, and keep the state markers (`- [ ]` / `- [x]`, `**Status:**`) in `plan.md` or `tickets.md` in sync yourself with `edit/editFiles`.
 </workflow>
