@@ -4,8 +4,8 @@ description: "ABP Framework Cloud-Native Planning Expert — Researches and outl
 argument-hint: Describe the C# / ABP backend goal or problem to plan
 target: vscode
 disable-model-invocation: true
-tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, edit/createFile, edit/editFiles, search/fileSearch, search/listDirectory, search/textSearch, search/usages, com.microsoft/nuget/get_latest_package_version, com.microsoft/nuget/get_package_context, com.microsoft/nuget/review_supply_chain_security, vscodeTasks/problems, vscodeGeneral/usages, todo]
-agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitReader', 'GitOps']
+tools: [vscode/memory, vscode/askQuestions, read/problems, read/readFile, read/viewImage, agent, edit/createFile, edit/editFiles, search/fileSearch, search/listDirectory, search/textSearch, search/usages, com.microsoft/nuget/get_latest_package_version, com.microsoft/nuget/get_package_context, com.microsoft/nuget/review_supply_chain_security, vscodeGeneral/usages, todo]
+agents: ['FastExplore', 'WebResearcher', 'TestRunner', 'GitReader']
 handoffs:
   - label: Start Implementation
     agent: "abp.master"
@@ -45,7 +45,7 @@ For NuGet package versions, API context, or supply-chain checks, query the `com.
 
 Look for existing similar features that can serve as templates. Invoke `@FastExplore` to search the codebase, trace C# symbol definitions, and analyze aggregate boundaries. Receive its summary report and update the plan.
 
-If you need to verify existing behavior by running tests, invoke `@TestRunner`. If context is needed from GitHub Issues, PRs, or version history, invoke `@GitOps`.
+If you need to verify existing behavior by running tests, invoke `@TestRunner`. If context is needed from GitHub Issues, PRs, or version history, invoke `@GitReader`.
 
 Done when you can name the aggregates in play, the existing feature serving as the template, and the layer files each step will touch — or confirm any of them don't exist yet.
 
